@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+applier/ANSWERS.json
+applier/runs/
+dashboard/jobs.json
+dashboard/logs/
+dashboard/stages/
+dashboard/dismissed.json
+_generated/
+.env

@@ -1,0 +1,64 @@
+{
+ "platform": "eightfold",
+ "learned_on": "2026-09-20",
+ "learned_from": "BCG Consultant Experienced Hire, experiencedtalent.bcg.com",
+ "match": [
+  "experiencedtalent.bcg.com",
+  "eightfold.ai",
+  "/careerhub/"
+ ],
+ "notes": [
+  "Eightfold requires an account before applying. Create it once, then reuse the saved browser profile.",
+  "Account creation flow: Create an account, marketing-consent gate (leave unchecked), email, Continue, Create Password, password, Submit, 6-digit email code.",
+  "TrustArc cookie overlay intercepts clicks. Remove the overlay nodes, do not just click accept.",
+  "Elements of a step stay in the DOM after the app moves past them, so every presence check must test visibility.",
+  "The privacy gate button is labelled \"Agree & Continue\". It can appear twice, before and after Apply.",
+  "Applying goes through Career Hub profile creation first: Agree & Continue, then Upload a resume, then Continue.",
+  "Getting to the form is a fixed five-move opening: Agree & Continue, pick the Resume card, Continue, upload, Continue.",
+  "The file input does NOT exist until after the first Continue. Uploading earlier silently does nothing.",
+  "After upload you land in a 6-step 'Build your profile' wizard with clean ids: firstname, lastname, phone, location, gender."
+ ],
+ "multi_step": true,
+ "step_param": "step",
+ "wait_after_load_ms": 9000,
+ "wait_after_next_ms": 6000,
+ "next_selector": "button:has-text('Continue'), button:has-text('Next'), button:has-text('Save and Continue')",
+ "needs_account": true,
+ "success_signals": [
+  "application submitted",
+  "thank you for applying",
+  "we have received your application",
+  "application received"
+ ],
+ "pre_actions": [
+  {
+   "click": "button:has-text('Agree & Continue')",
+   "wait_ms": 7000,
+   "timeout_ms": 10000
+  },
+  {
+   "click": "text=Upload a resume",
+   "wait_ms": 3000,
+   "timeout_ms": 12000
+  },
+  {
+   "click": "button:has-text('Continue')",
+   "wait_ms": 6000,
+   "timeout_ms": 10000
+  },
+  {
+   "upload": "resume_pdf",
+   "selector": "input[type=file]",
+   "wait_ms": 20000
+  },
+  {
+   "click": "button:has-text('Continue')",
+   "wait_ms": 9000,
+   "timeout_ms": 12000
+  }
+ ],
+ "steps": {},
+ "jobs": {
+  "_removed": "Per-company answers are personal and live in the private repo."
+ }
+}

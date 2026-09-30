@@ -1,0 +1,223 @@
+{
+  "_comment": "<_comment>",
+  "identity": {
+    "first_name": "<first_name>",
+    "last_name": "<last_name>",
+    "full_name": "<full_name>",
+    "preferred_name": "<preferred_name>",
+    "pronouns": "<pronouns>",
+    "email": "<email>",
+    "email_personal": "<email_personal>",
+    "phone": "<phone>",
+    "phone_digits": "<phone_digits>",
+    "phone_country": "<phone_country>",
+    "linkedin": "<linkedin>",
+    "linkedin_full": "<linkedin_full>",
+    "github": "<github>",
+    "website": "<website>",
+    "address_line1": "<address_line1>",
+    "city": "<city>",
+    "state": "<state>",
+    "state_code": "<state_code>",
+    "zip": "<zip>",
+    "country": "<country>",
+    "nationality": "<nationality>",
+    "second_citizenship": "<second_citizenship>",
+    "email_school": "<email_school>",
+    "_email_note": "<_email_note>",
+    "email_old": "<email_old>",
+    "location_city": "<location_city>",
+    "_location_city_note": "<_location_city_note>"
+  },
+  "work_authorization": {
+    "legally_authorized_us": "<legally_authorized_us>",
+    "require_sponsorship": "<require_sponsorship>",
+    "require_sponsorship_explain": "<require_sponsorship_explain>",
+    "permanent_us_authorization": "<permanent_us_authorization>",
+    "visa_status": "<visa_status>",
+    "authorized_uk": "<authorized_uk>",
+    "authorized_eu": "<authorized_eu>",
+    "eu_note": "<eu_note>",
+    "security_clearance": "<security_clearance>",
+    "over_18": "<over_18>",
+    "convicted_felony": "<convicted_felony>",
+    "non_compete": "<non_compete>"
+  },
+  "education": {
+    "grad_school": "<grad_school>",
+    "grad_school_alt": [
+      "<grad_school_alt>"
+    ],
+    "grad_degree": "<grad_degree>",
+    "grad_degree_alt": [
+      "<grad_degree_alt>"
+    ],
+    "grad_discipline": "<grad_discipline>",
+    "grad_start_month": "<grad_start_month>",
+    "grad_start_year": "<grad_start_year>",
+    "grad_end_month": "<grad_end_month>",
+    "grad_end_year": "<grad_end_year>",
+    "graduation_date": "<graduation_date>",
+    "graduation_term": "<graduation_term>",
+    "grad_gpa": "<grad_gpa>",
+    "grad_gpa_note": "<grad_gpa_note>",
+    "undergrad_school": "<undergrad_school>",
+    "undergrad_school_alt": [
+      "<undergrad_school_alt>"
+    ],
+    "undergrad_degree": "<undergrad_degree>",
+    "undergrad_discipline": "<undergrad_discipline>",
+    "undergrad_start_year": "<undergrad_start_year>",
+    "undergrad_end_year": "<undergrad_end_year>",
+    "undergrad_gpa_raw": "<undergrad_gpa_raw>",
+    "undergrad_class_rank": "<undergrad_class_rank>",
+    "gpa_open_text": "<gpa_open_text>",
+    "gpa_scale_4_0": "<gpa_scale_4_0>",
+    "_gpa_scale_4_0_note": "<_gpa_scale_4_0_note>",
+    "transcript_pdf": "<transcript_pdf>",
+    "_transcript_note": "<_transcript_note>",
+    "_gpa_rule": "<_gpa_rule>",
+    "graduation_date_mmddyyyy": "<graduation_date_mmddyyyy>",
+    "graduation_date_iso": "<graduation_date_iso>",
+    "_graduation_note": "<_graduation_note>",
+    "transcript_pdf_wsl": "<transcript_pdf_wsl>"
+  },
+  "work": {
+    "_comment": "<_comment>",
+    "0": {
+      "title": "<title>",
+      "company": "<company>",
+      "location": "<location>",
+      "start": "<start>",
+      "end": "<end>",
+      "current": false,
+      "description": "<description>"
+    },
+    "1": {
+      "title": "<title>",
+      "company": "<company>",
+      "location": "<location>",
+      "start": "<start>",
+      "end": "<end>",
+      "current": false,
+      "description": "<description>"
+    },
+    "2": {
+      "title": "<title>",
+      "company": "<company>",
+      "location": "<location>",
+      "start": "<start>",
+      "end": "<end>",
+      "current": false,
+      "description": "<description>"
+    },
+    "3": {
+      "title": "<title>",
+      "company": "<company>",
+      "location": "<location>",
+      "start": "<start>",
+      "end": "<end>",
+      "current": false,
+      "description": "<description>"
+    },
+    "4": {
+      "title": "<title>",
+      "company": "<company>",
+      "location": "<location>",
+      "start": "<start>",
+      "end": "<end>",
+      "current": false,
+      "description": "<description>"
+    }
+  },
+  "schools": {
+    "_comment": "<_comment>",
+    "0": {
+      "name": "<name>",
+      "degree": "<degree>",
+      "field": "<field>",
+      "start": "<start>",
+      "end": "<end>"
+    },
+    "1": {
+      "name": "<name>",
+      "degree": "<degree>",
+      "field": "<field>",
+      "start": "<start>",
+      "end": "<end>"
+    }
+  },
+  "compensation": {
+    "salary_expectation": "<salary_expectation>",
+    "salary_expectation_text": "<salary_expectation_text>",
+    "currency": "<currency>",
+    "start_date": "<start_date>",
+    "start_date_text": "<start_date_text>",
+    "willing_to_relocate": "<willing_to_relocate>",
+    "willing_to_travel": "<willing_to_travel>",
+    "notice_period": "<notice_period>",
+    "location_preference_ranked": [
+      "<location_preference_ranked>"
+    ],
+    "remote_preference": "<remote_preference>"
+  },
+  "eeo": {
+    "hispanic_latino": "<hispanic_latino>",
+    "race_ethnicity": "<race_ethnicity>",
+    "gender": "<gender>",
+    "veteran_status": "<veteran_status>",
+    "disability_status": "<disability_status>",
+    "first_generation": "<first_generation>",
+    "two_or_more_races_detail": "<two_or_more_races_detail>",
+    "_two_or_more_note": "<_two_or_more_note>"
+  },
+  "how_did_you_hear": {
+    "_rule": "<_rule>",
+    "ranked": [
+      "<ranked>"
+    ],
+    "referrals": {},
+    "_previous_ranked": [
+      "<_previous_ranked>"
+    ]
+  },
+  "misc": {
+    "worked_here_before": "<worked_here_before>",
+    "applied_here_before": "<applied_here_before>",
+    "related_to_employee": "<related_to_employee>",
+    "languages": "<languages>",
+    "greatest_strength": "<greatest_strength>",
+    "why_product": "<why_product>",
+    "sanctions_countries": "<sanctions_countries>"
+  },
+  "answering_policy": {
+    "_set_by": "<_set_by>",
+    "relax_where_relaxable": "<relax_where_relaxable>",
+    "field_of_study": "<field_of_study>",
+    "NEVER_RELAX_visa": "<NEVER_RELAX_visa>",
+    "hard_filters": "<hard_filters>"
+  },
+  "screening_defaults": {
+    "_set_by": "<_set_by>",
+    "gpa_4_0_scale": "<gpa_4_0_scale>",
+    "major_or_concentration": "<major_or_concentration>",
+    "linkedin": "<linkedin>",
+    "currently_pursuing_mba_graduating_2027": "<currently_pursuing_mba_graduating_2027>",
+    "school_info": "<school_info>",
+    "has_4_to_7_years_experience": "<has_4_to_7_years_experience>",
+    "willing_to_work_in_office_boston": "<willing_to_work_in_office_boston>",
+    "willing_to_relocate": "<willing_to_relocate>",
+    "rule": "<rule>",
+    "_note": "<_note>",
+    "gpa_text": "<gpa_text>",
+    "_major_note": "<_major_note>",
+    "willing_to_work_in_office": "<willing_to_work_in_office>",
+    "_companyc_set_by": "<_companyc_set_by>",
+    "marketing_communications_opt_in": "<marketing_communications_opt_in>",
+    "sms_text_consent": "<sms_text_consent>",
+    "finra_licenses": "<finra_licenses>",
+    "auditor_employee_ever": "<auditor_employee_ever>",
+    "current_employee_of_company": "<current_employee_of_company>",
+    "within_commute_or_relocate": "<within_commute_or_relocate>"
+  }
+}

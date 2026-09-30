@@ -1,0 +1,204 @@
+{
+ "platform": "avature",
+ "learned_on": "2026-09-20",
+ "learned_from": "Company L Global Future Leaders Program 2027",
+ "match": [
+  "jobs.companyl.com",
+  "careers.companye.com",
+  "/careers/JobDetail?jobId=",
+  "/careers/ApplicationMethods?jobId="
+ ],
+ "notes": [
+  "No account is needed up front. The Login page's Register link drops straight into the application at /careers/ApplicationMethods?jobId=N, so skip the login entirely and go there.",
+  "Four steps: Select your resume, Personal info, Questionnaire, Job specific questions.",
+  "A large cookie and consent overlay blocks clicks. Remove the nodes, do not just accept.",
+  "Company E uses the same URL shape, so this recipe should carry over.",
+  "Step 1 offers From Device, Copy & Paste, Without Resume. The file input exists in the DOM but nothing happens until From Device is clicked first.",
+  "Avature creates the account inline on the personal info step: there are Password and Confirm password fields (8171, 8172) rather than a separate signup.",
+  "Area of Interest, Degree Type and Major are span[role=combobox] with no id. They are addressed by label text with an index for repeated education rows.",
+  "Graduation Date fields are input type=month, so the value must be YYYY-MM, not a date string. Education rows are suffixed -4-0 and -4-1.",
+  "Graduation Date is input type=month, so the value must be YYYY-MM. Education rows are suffixed -4-0 and -4-1.",
+  "University, Degree Type, Major and Area of Interest are select2 widgets with no id and no label. Address them by the text immediately BEFORE the widget, with an index for the two education rows. Type into .select2-search__field, then click the matching .select2-results__option."
+ ],
+ "url_rewrite": {
+  "from": "/careers/(?:JobDetail|Login)\\?jobId=(?P<jobid>\\d+)",
+  "to": "/careers/ApplicationMethods?jobId={jobid}"
+ },
+ "multi_step": true,
+ "step_param": "step",
+ "wait_after_load_ms": 9000,
+ "wait_after_next_ms": 6000,
+ "next_selector": "button:has-text('Continue')",
+ "dismiss": [
+  "#onetrust-accept-btn-handler",
+  "button:has-text('Accept All')",
+  "button:has-text('Accept all')"
+ ],
+ "success_signals": [
+  "thank you for applying",
+  "application has been submitted",
+  "we have received your application",
+  "application received",
+  "thank you for your interest"
+ ],
+ "pre_actions": [
+  {
+   "click": "text=From Device",
+   "wait_ms": 3000,
+   "timeout_ms": 12000
+  },
+  {
+   "upload": "resume_pdf",
+   "selector": "#resumeFile",
+   "wait_ms": 15000,
+   "required": true
+  }
+ ],
+ "steps": {
+  "": {
+   "_comment": "Company L Avature personal info step. Field ids are numeric Avature field definition ids and are stable across Company L jobs. The label matcher handles most of the 93 controls; these are the ones it cannot know.",
+   "match_field": "8152",
+   "fields": {
+    "8157": {
+     "type": "text",
+     "answer": "identity.address_line1",
+     "label": "Address"
+    },
+    "8160": {
+     "type": "select",
+     "answer": "identity.country",
+     "accept": [
+      "United States",
+      "United States of America",
+      "USA"
+     ],
+     "label": "Country/Region"
+    },
+    "8161": {
+     "type": "select",
+     "answer": "identity.state",
+     "accept": [
+      "Massachusetts"
+     ],
+     "label": "State"
+    },
+    "12917": {
+     "type": "select",
+     "choose": "Yes",
+     "label": "May we contact you by SMS"
+    },
+    "8171": {
+     "type": "text",
+     "answer": "account.password",
+     "label": "Password (account created inline)"
+    },
+    "8172": {
+     "type": "text",
+     "answer": "account.password",
+     "label": "Confirm password"
+    },
+    "12924-4-0": {
+     "type": "text",
+     "choose": "2027-05",
+     "label": "Graduation Date, school 1 (MIT Sloan). input type=month needs YYYY-MM"
+    },
+    "12924-4-1": {
+     "type": "text",
+     "choose": "2019-12",
+     "label": "Graduation Date, school 2 (Di Tella). input type=month needs YYYY-MM"
+    },
+    "s2:Area of Interest": {
+     "after_text": "area of interest",
+     "index": 0,
+     "accept": [
+      "Strategy",
+      "Business Strategy",
+      "Strategy and Operations",
+      "Corporate Strategy",
+      "Product Management",
+      "Business",
+      "Consulting",
+      "Finance",
+      "Marketing",
+      "Operations",
+      "Artificial Intelligence",
+      "Data & Analytics"
+     ],
+     "label": "Area of Interest (select2, multi)"
+    },
+    "s2:University#0": {
+     "after_text": "university",
+     "index": 0,
+     "accept": [
+      "Massachusetts Institute of Technology",
+      "MIT",
+      "Other"
+     ],
+     "label": "University, row 1"
+    },
+    "s2:Degree Type#0": {
+     "after_text": "degree type",
+     "index": 0,
+     "accept": [
+      "Master's Degree",
+      "Masters",
+      "Master",
+      "MBA",
+      "Graduate Degree",
+      "Other"
+     ],
+     "label": "Degree Type, row 1"
+    },
+    "s2:Major#0": {
+     "after_text": "major/field of study",
+     "index": 0,
+     "accept": [
+      "Business Administration",
+      "Business",
+      "Management",
+      "Economics",
+      "Other"
+     ],
+     "label": "Major, row 1"
+    },
+    "s2:University#1": {
+     "after_text": "university",
+     "index": 1,
+     "accept": [
+      "Universidad Torcuato Di Tella",
+      "Torcuato Di Tella",
+      "Other"
+     ],
+     "label": "University, row 2"
+    },
+    "s2:Degree Type#1": {
+     "after_text": "degree type",
+     "index": 1,
+     "accept": [
+      "Bachelor's Degree",
+      "Bachelors",
+      "Bachelor",
+      "Undergraduate Degree",
+      "Other"
+     ],
+     "label": "Degree Type, row 2"
+    },
+    "s2:Major#1": {
+     "after_text": "major/field of study",
+     "index": 1,
+     "accept": [
+      "Business Administration",
+      "Business",
+      "Management",
+      "Economics",
+      "Other"
+     ],
+     "label": "Major, row 2"
+    }
+   }
+  }
+ },
+ "jobs": {
+  "_removed": "Per-company answers are personal and live in the private repo."
+ }
+}

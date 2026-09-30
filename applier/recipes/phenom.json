@@ -1,0 +1,460 @@
+{
+ "platform": "phenom",
+ "learned_on": "2026-09-20",
+ "learned_from": "Company M 2027 MBA University Graduate, Manager Corporate Strategy",
+ "match": [
+  "careers.companym.com",
+  "/us/en/apply?jobSeqNo=",
+  "careers.bcg.com",
+  "/global/en/apply?jobSeqNo="
+ ],
+ "notes": [
+  "Phenom hosts the job page, then the apply flow lives at /us/en/apply?jobSeqNo=<id>&step=N&stepname=<name>.",
+  "Always start from the apply URL, not the job page. The job page has three controls, the apply page has twenty.",
+  "All controls are plain <select> and <input>. No react-select widgets, so type 'select' not 'autocomplete'.",
+  "Six steps: personalInformation, myExperience, applicationQuestions, voluntaryDisclosures, selfIdentify, review.",
+  "Country must be set before State, because it repopulates the region list."
+ ],
+ "url_rewrite": {
+  "from": "careers\\.companym\\.com/.*/job/(?P<jobid>[A-Z0-9]+)/",
+  "to": "https://careers.companym.com/us/en/apply?jobSeqNo={jobid}"
+ },
+ "multi_step": true,
+ "step_param": "stepname",
+ "wait_after_load_ms": 7000,
+ "wait_after_next_ms": 6000,
+ "next_selector": "button:has-text('Next')",
+ "success_signals": [
+  "application has been submitted",
+  "Thank you for applying",
+  "we have received your application",
+  "Application Submitted"
+ ],
+ "steps": {
+  "personalInformation": {
+   "_comment": "Order matters. Resume first (it is required and its parser prefills fields we then overwrite), then Country, which repopulates the State list.",
+   "match_field": "usConsentObject.applicantConsent",
+   "fields": {
+    "resume_upload": {
+     "type": "file",
+     "selector": "input[type=file]",
+     "upload": "resume_pdf",
+     "wait_ms": 9000,
+     "label": "Upload Resume (required)"
+    },
+    "country": {
+     "type": "select",
+     "answer": "identity.country",
+     "accept": [
+      "United States of America",
+      "United States"
+     ],
+     "label": "Country",
+     "wait_ms": 2500
+    },
+    "cntryFields.firstName": {
+     "type": "text",
+     "answer": "identity.first_name",
+     "label": "First Name"
+    },
+    "cntryFields.lastName": {
+     "type": "text",
+     "answer": "identity.last_name",
+     "label": "Last Name"
+    },
+    "cntryFields.addressLine1": {
+     "type": "text",
+     "answer": "identity.address_line1",
+     "label": "Address Line 1",
+     "required": false
+    },
+    "cntryFields.city": {
+     "type": "text",
+     "answer": "identity.city",
+     "label": "City",
+     "required": false
+    },
+    "cntryFields.region": {
+     "type": "select",
+     "answer": "identity.state",
+     "accept": [
+      "Massachusetts"
+     ],
+     "label": "State",
+     "required": false
+    },
+    "cntryFields.postalCode": {
+     "type": "text",
+     "answer": "identity.zip",
+     "label": "Postal Code",
+     "required": false
+    },
+    "email": {
+     "type": "text",
+     "answer": "identity.email",
+     "label": "Email Address"
+    },
+    "deviceType": {
+     "type": "select",
+     "choose": "Mobile",
+     "label": "Phone Device Type"
+    },
+    "phoneWidget.countryPhoneCode": {
+     "type": "select",
+     "label": "Country Phone Code",
+     "accept": [
+      "United States (+1)",
+      "United States of America (+1)",
+      "United States"
+     ]
+    },
+    "phoneWidget.phoneNumber": {
+     "type": "text",
+     "answer": "identity.phone_digits",
+     "label": "Phone Number"
+    },
+    "source": {
+     "type": "select",
+     "label": "How Did You Hear About Us?",
+     "options": [
+      "Company M Source",
+      "Contingent Worker",
+      "External Organizations",
+      "Job Boards",
+      "Through my University",
+      "Social Media"
+     ],
+     "choose": "Job Boards"
+    },
+    "applicantSource": {
+     "type": "select",
+     "label": "Source (appears only after Job Boards)",
+     "options": [
+      "BizReach",
+      "Built In",
+      "Findem",
+      "Glassdoor",
+      "Handshake",
+      "Indeed",
+      "Instahyre",
+      "Jobteaser",
+      "LinkedIn",
+      "Naukri",
+      "RateMyPlacement",
+      "ZipRecruiter"
+     ],
+     "choose": "LinkedIn"
+    },
+    "cntryFields.addressLine2": {
+     "type": "text",
+     "answer": "",
+     "label": "Address Line 2",
+     "required": false
+    },
+    "candidateSelfIdentifyAsPriorWorker": {
+     "type": "radio_group",
+     "radio_name": "candidateSelfIdentifyAsPriorWorker",
+     "choose": "No",
+     "label": "Have you previously worked at Company M?"
+    },
+    "usConsentObject.emailAgreement": {
+     "type": "checkbox",
+     "checked": true,
+     "label": "Company M may keep me informed by email"
+    },
+    "usConsentObject.privacyPolicyConsent": {
+     "type": "checkbox",
+     "checked": true,
+     "label": "Privacy policy consent (required)"
+    },
+    "usConsentObject.smsOptIn": {
+     "type": "checkbox",
+     "checked": false,
+     "label": "SMS opt in (optional, declined)"
+    },
+    "usConsentObject.applicantConsent": {
+     "type": "checkbox",
+     "checked": true,
+     "label": "Certify information is accurate (required)"
+    }
+   }
+  },
+  "workAndEducation": {
+   "_comment": "Company M's resume parser prefills all five jobs but in reverse order, corrupts the en dash in the Felix title, writes 'Buenos Aires, , Argentina' with a double comma, and leaves education entirely blank. We overwrite every field so the result is deterministic and Felix leads.",
+   "match_field": "experienceData[0].title",
+   "fields": {
+    "experienceData[0].title": {
+     "type": "text",
+     "answer": "work.0.title"
+    },
+    "experienceData[0].companyName": {
+     "type": "text",
+     "answer": "work.0.company"
+    },
+    "experienceData[0].location": {
+     "type": "text",
+     "answer": "work.0.location",
+     "required": false
+    },
+    "experienceData[0].fromTo.startDate": {
+     "type": "date",
+     "answer": "work.0.start"
+    },
+    "experienceData[0].fromTo.endDate": {
+     "type": "date",
+     "answer": "work.0.end"
+    },
+    "experienceData[0].description": {
+     "type": "text",
+     "answer": "work.0.description",
+     "required": false
+    },
+    "experienceData[1].title": {
+     "type": "text",
+     "answer": "work.1.title"
+    },
+    "experienceData[1].companyName": {
+     "type": "text",
+     "answer": "work.1.company"
+    },
+    "experienceData[1].location": {
+     "type": "text",
+     "answer": "work.1.location",
+     "required": false
+    },
+    "experienceData[1].fromTo.startDate": {
+     "type": "date",
+     "answer": "work.1.start"
+    },
+    "experienceData[1].fromTo.endDate": {
+     "type": "date",
+     "answer": "work.1.end"
+    },
+    "experienceData[1].description": {
+     "type": "text",
+     "answer": "work.1.description",
+     "required": false
+    },
+    "experienceData[2].title": {
+     "type": "text",
+     "answer": "work.2.title"
+    },
+    "experienceData[2].companyName": {
+     "type": "text",
+     "answer": "work.2.company"
+    },
+    "experienceData[2].location": {
+     "type": "text",
+     "answer": "work.2.location",
+     "required": false
+    },
+    "experienceData[2].fromTo.startDate": {
+     "type": "date",
+     "answer": "work.2.start"
+    },
+    "experienceData[2].fromTo.endDate": {
+     "type": "date",
+     "answer": "work.2.end"
+    },
+    "experienceData[2].description": {
+     "type": "text",
+     "answer": "work.2.description",
+     "required": false
+    },
+    "experienceData[3].title": {
+     "type": "text",
+     "answer": "work.3.title"
+    },
+    "experienceData[3].companyName": {
+     "type": "text",
+     "answer": "work.3.company"
+    },
+    "experienceData[3].location": {
+     "type": "text",
+     "answer": "work.3.location",
+     "required": false
+    },
+    "experienceData[3].fromTo.startDate": {
+     "type": "date",
+     "answer": "work.3.start"
+    },
+    "experienceData[3].fromTo.endDate": {
+     "type": "date",
+     "answer": "work.3.end"
+    },
+    "experienceData[3].description": {
+     "type": "text",
+     "answer": "work.3.description",
+     "required": false
+    },
+    "experienceData[4].title": {
+     "type": "text",
+     "answer": "work.4.title"
+    },
+    "experienceData[4].companyName": {
+     "type": "text",
+     "answer": "work.4.company"
+    },
+    "experienceData[4].location": {
+     "type": "text",
+     "answer": "work.4.location",
+     "required": false
+    },
+    "experienceData[4].fromTo.startDate": {
+     "type": "date",
+     "answer": "work.4.start"
+    },
+    "experienceData[4].fromTo.endDate": {
+     "type": "date",
+     "answer": "work.4.end"
+    },
+    "experienceData[4].description": {
+     "type": "text",
+     "answer": "work.4.description",
+     "required": false
+    },
+    "educationData[0].schoolName": {
+     "type": "typeahead",
+     "answer": "schools.0.name",
+     "placeholder": "Enter school name",
+     "index": 0,
+     "fallback": "Other",
+     "wait_ms": 3000,
+     "label": "School 1 (typeahead: the id'd input is hidden, the real one has this placeholder)"
+    },
+    "educationData[0].degree": {
+     "type": "select",
+     "answer": "schools.0.degree",
+     "accept": [
+      "Masters",
+      "Master's",
+      "Masters Degree"
+     ]
+    },
+    "educationData[0].fieldOfStudy": {
+     "type": "select",
+     "answer": "schools.0.field",
+     "required": false,
+     "accept": [
+      "Business Administration",
+      "Business Administration and Management",
+      "Business"
+     ]
+    },
+    "educationData[0].fromTo.startDate": {
+     "type": "date",
+     "answer": "schools.0.start",
+     "required": false
+    },
+    "educationData[0].fromTo.endDate": {
+     "type": "date",
+     "answer": "schools.0.end",
+     "required": false
+    },
+    "educationData[1].schoolName": {
+     "type": "typeahead",
+     "answer": "schools.1.name",
+     "placeholder": "Enter school name",
+     "index": 1,
+     "fallback": "Other",
+     "wait_ms": 3000,
+     "label": "School 2"
+    },
+    "educationData[1].degree": {
+     "type": "select",
+     "answer": "schools.1.degree",
+     "accept": [
+      "Bachelors",
+      "Bachelor's",
+      "Bachelors Degree"
+     ]
+    },
+    "educationData[1].fieldOfStudy": {
+     "type": "select",
+     "answer": "schools.1.field",
+     "required": false,
+     "accept": [
+      "Business Administration",
+      "Business Administration and Management",
+      "Business"
+     ]
+    },
+    "educationData[1].fromTo.startDate": {
+     "type": "date",
+     "answer": "schools.1.start",
+     "required": false
+    },
+    "educationData[1].fromTo.endDate": {
+     "type": "date",
+     "answer": "schools.1.end",
+     "required": false
+    },
+    "socialMediaAccountDataV2[0].socialNetworkAccountURL": {
+     "type": "text",
+     "answer": "identity.linkedin_full",
+     "label": "LinkedIn Profile URL",
+     "required": false
+    }
+   },
+   "ignore_ids": [
+    "skillObject.skills",
+    "",
+    "noRating",
+    "star1",
+    "star2",
+    "star3",
+    "star4",
+    "star5"
+   ],
+   "ignore_note": "The skills widget is an add-by-typing control. Company M's parser already populated it from the resume and its contents are accurate, so we leave it alone."
+  },
+  "jobSpecificQuestions": {
+   "_comment": "Company M's own questionnaire. All plain Yes/No selects plus one checkbox group about prior Company M work.",
+   "match_field": "jsqData.R2_Primary_External_Questionnaire_Americas_and_EMEA.a",
+   "fields": {
+    "jsqData.R2_Primary_External_Questionnaire_Americas_and_EMEA.a": {
+     "type": "select",
+     "choose": "Yes",
+     "label": "Are you of legal age to work in the country where this position is based?"
+    },
+    "jsqData.R2_Primary_External_Questionnaire_Americas_and_EMEA.b_4": {
+     "type": "checkbox",
+     "checked": true,
+     "label": "I have not worked for Company M in the past."
+    },
+    "jsqData.R2_Primary_External_Questionnaire_Americas_and_EMEA.c": {
+     "type": "select",
+     "choose": "Yes",
+     "label": "Are you willing to submit a background check during the hiring process?"
+    },
+    "jsqData.R2_Primary_External_Questionnaire_Americas_and_EMEA.d": {
+     "type": "select",
+     "choose": "Yes",
+     "label": "Can you provide documentation establishing identity and work eligibility?"
+    },
+    "jsqData.R2_Primary_External_Questionnaire_Americas_and_EMEA.e": {
+     "type": "select",
+     "choose": "Yes",
+     "label": "Are you able to work daily in the listed work location?"
+    },
+    "jsqData.R2_Primary_External_Questionnaire_Americas_and_EMEA.f": {
+     "type": "select",
+     "answer": "work_authorization.require_sponsorship",
+     "label": "Will you now or in the future require sponsorship?"
+    }
+   },
+   "ignore_ids": [
+    "noRating",
+    "star1",
+    "star2",
+    "star3",
+    "star4",
+    "star5"
+   ],
+   "ignore_note": "Those are the Send Feedback star widget, not part of the application."
+  }
+ },
+ "jobs": {
+  "_removed": "Per-company answers are personal and live in the private repo."
+ }
+}

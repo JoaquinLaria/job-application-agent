@@ -1,0 +1,189 @@
+{
+ "platform": "greenhouse",
+ "learned_on": "2026-09-20",
+ "learned_from": "Company J Associate Product Manager 2027",
+ "match": [
+  "greenhouse.io",
+  "gh_jid=",
+  "gh_src="
+ ],
+ "notes": [
+  "Always rewrite the job URL to the embed form before touching it. The React board page hides fields; the embed endpoint exposes all of them with stable ids.",
+  "Option lists MUST be read scoped to the field's own listbox via aria-controls. The phone country-code dropdown lives permanently in the DOM and will poison a global [role=option] query.",
+  "Field ids ending in --0 belong to the first education row. A second degree would be --1."
+ ],
+ "url_rewrite": {
+  "from": "(?:job-boards|boards|my)\\.greenhouse\\.io/(?:jobs/)?(?P<company>[^/]+?)/(?:jobs/)?(?P<jobid>\\d+)",
+  "to": "https://boards.greenhouse.io/embed/job_app?for={company}&token={jobid}"
+ },
+ "gh_jid_rewrite": {
+  "_why": "Company-site links (?gh_jid=) embed the form in an iframe; fill.py timed out on every field (Company C, 2026-09-29).",
+  "to": "https://boards.greenhouse.io/embed/job_app?for={company}&token={jobid}"
+ },
+ "option_scope": "aria-controls",
+ "wait_after_load_ms": 5000,
+ "submit_selector": "button:has-text('Submit application')",
+ "success_signals": [
+  "Thank you for applying",
+  "application has been submitted",
+  "Your application has been received",
+  "Thanks for taking the time to apply",
+  "Track your application",
+  "Thanks for applying"
+ ],
+ "fields": {
+  "first_name": {
+   "type": "text",
+   "answer": "identity.first_name"
+  },
+  "last_name": {
+   "type": "text",
+   "answer": "identity.last_name"
+  },
+  "preferred_name": {
+   "type": "text",
+   "answer": "identity.preferred_name",
+   "required": false,
+   "note": "EEO and optional fields are absent on some boards."
+  },
+  "email": {
+   "type": "text",
+   "answer": "identity.email"
+  },
+  "phone": {
+   "type": "text",
+   "answer": "identity.phone"
+  },
+  "resume": {
+   "type": "file",
+   "upload": "resume_pdf"
+  },
+  "cover_letter": {
+   "type": "file",
+   "upload": "cover_pdf"
+  },
+  "country": {
+   "type": "autocomplete",
+   "answer": "identity.phone_country",
+   "note": "This is the PHONE country code selector, not a residence field. Correct value is the United States entry, which renders as 'United States +1'.",
+   "accept": [
+    "United States +1",
+    "United States"
+   ],
+   "required": false
+  },
+  "school--0": {
+   "type": "autocomplete",
+   "answer": "education.grad_school",
+   "accept": [
+    "Massachusetts Institute of Technology",
+    "Massachusetts Institute of Technology (MIT)",
+    "MIT"
+   ],
+   "needs_typing": true,
+   "wait_ms": 2000,
+   "required": false
+  },
+  "degree--0": {
+   "type": "autocomplete",
+   "answer": "education.grad_degree",
+   "accept": [
+    "Master's Degree",
+    "Master of Business Administration (M.B.A.)",
+    "MBA",
+    "Master's",
+    "Graduate Degree"
+   ],
+   "required": false
+  },
+  "discipline--0": {
+   "type": "autocomplete",
+   "answer": "education.grad_discipline",
+   "required": false,
+   "accept": [
+    "Business Administration",
+    "Business Administration and Management",
+    "Business"
+   ],
+   "note": "Not present on every Greenhouse board. Skipped when absent."
+  },
+  "start-month--0": {
+   "type": "autocomplete",
+   "answer": "education.grad_start_month",
+   "required": false,
+   "note": "Not present on every Greenhouse board. Skipped when absent."
+  },
+  "start-year--0": {
+   "type": "text",
+   "answer": "education.grad_start_year",
+   "required": false,
+   "note": "Not present on every Greenhouse board. Skipped when absent."
+  },
+  "end-month--0": {
+   "type": "autocomplete",
+   "answer": "education.grad_end_month",
+   "required": false
+  },
+  "end-year--0": {
+   "type": "text",
+   "answer": "education.grad_end_year",
+   "required": false
+  },
+  "gender": {
+   "type": "autocomplete",
+   "answer": "eeo.gender",
+   "accept": [
+    "Male"
+   ],
+   "required": false,
+   "note": "EEO and optional fields are absent on some boards."
+  },
+  "hispanic_ethnicity": {
+   "type": "autocomplete",
+   "answer": "eeo.hispanic_latino",
+   "accept": [
+    "Yes",
+    "Hispanic or Latino"
+   ],
+   "required": false,
+   "note": "EEO and optional fields are absent on some boards."
+  },
+  "veteran_status": {
+   "type": "autocomplete",
+   "answer": "eeo.veteran_status",
+   "accept": [
+    "I am not a protected veteran",
+    "I AM NOT a protected veteran",
+    "Not a protected veteran",
+    "No"
+   ],
+   "required": false,
+   "note": "EEO and optional fields are absent on some boards."
+  },
+  "disability_status": {
+   "type": "autocomplete",
+   "answer": "eeo.disability_status",
+   "accept": [
+    "No, I do not have a disability and have not had one in the past",
+    "No, I do not have a disability",
+    "No",
+    "I do not have a disability"
+   ],
+   "required": false,
+   "note": "EEO and optional fields are absent on some boards."
+  },
+  "race": {
+   "type": "autocomplete",
+   "answer": "eeo.race_ethnicity",
+   "required": false,
+   "accept": [
+    "Hispanic or Latino"
+   ],
+   "note": "Not present on every Greenhouse board. Skipped when absent."
+  }
+ },
+ "jobs": {
+  "_removed": "Per-company answers are personal and live in the private repo."
+ },
+ "post_submit_wait_s": 120
+}

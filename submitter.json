@@ -1,0 +1,8 @@
+{
+  "_comment": "Which agent submits the application form. 'claude' = the applier subagent in .claude/agents/applier.md. 'hermes' = Hermes Agent in WSL, via applier/hermes_submit.py, on Parley. Switch back any time by editing this one line.",
+  "submitter": "hermes",
+  "hermes_model": "claude-sonnet-5",
+  "hermes_max_turns": 8,
+  "hermes_run_budget_seconds": 720,
+  "claude_model": "opus"
+}

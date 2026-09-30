@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application Queue</title>
+<style>
+  :root {
+    --bg: #f5f5f2; --card: #fff; --ink: #1b1b19; --mute: #6a6a64; --line: #e2e1db;
+    --accent: #2f5bd3; --ok: #1d8049; --warn: #a86b12; --bad: #bf3528; --muse: #7446bd;
+    --soft-ok: #e5f3eb; --soft-warn: #fbf0dc; --soft-bad: #fbe8e5; --soft-muse: #efe8f9; --soft-run: #e7edfc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141413; --card: #1d1d1b; --ink: #ecebe6; --mute: #9b9b94; --line: #2e2e2b;
+      --accent: #7c9cff; --ok: #4ec27f; --warn: #e3aa4c; --bad: #ef6d5d; --muse: #b28be9;
+      --soft-ok: #18321f; --soft-warn: #392c14; --soft-bad: #3a1c18; --soft-muse: #2b203f; --soft-run: #1c2641;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; padding: 22px 16px 60px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 20px; margin: 0; }
+  h2 { font-size: 14px; margin: 0 0 8px; }
+  .meta { color: var(--mute); font-size: 13px; }
+  .badge { background: var(--soft-warn); color: var(--warn); padding: 2px 8px; border-radius: 99px; font-weight: 600; font-size: 12px; }
+  .limit { color: var(--bad); font-weight: 600; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-top: 14px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid .card { margin-top: 0; }
+  .top { margin-top: 14px; }
+  textarea { width: 100%; min-height: 70px; resize: vertical; font: 13px ui-monospace, Consolas, monospace;
+             padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+  select { font: inherit; font-size: 13px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line);
+           background: var(--bg); color: var(--ink); }
+  label.f { display: block; font-size: 12px; color: var(--mute); margin: 8px 0 3px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  button { font: inherit; font-size: 13px; padding: 5px 11px; border-radius: 6px; cursor: pointer;
+           border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  button:hover { border-color: var(--mute); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.danger { color: var(--bad); }
+  button:disabled { opacity: .4; cursor: default; }
+  .hint { color: var(--mute); font-size: 12px; }
+  .saved { color: var(--ok); font-size: 12px; font-weight: 600; }
+  .counts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .count { font-size: 12px; padding: 3px 10px; border-radius: 99px; background: var(--card); border: 1px solid var(--line); }
+  .count b { font-variant-numeric: tabular-nums; }
+  .listhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .job { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: start;
+         padding: 12px 0; border-top: 1px solid var(--line); }
+  .job:first-of-type { border-top: 0; }
+  .num { color: var(--mute); font-variant-numeric: tabular-nums; padding-top: 2px; }
+  .title { font-weight: 600; word-break: break-word; }
+  .title a, .sub a { color: inherit; }
+  .sub { color: var(--mute); font-size: 12px; word-break: break-all; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 9px; border-radius: 99px; margin-right: 6px; }
+  .p-pending { background: var(--line); color: var(--mute); }
+  .p-sent, .p-running { background: var(--soft-run); color: var(--accent); }
+  .p-submitted { background: var(--soft-ok); color: var(--ok); }
+  .p-needs_you { background: var(--soft-warn); color: var(--warn); }
+  .p-stopped, .p-failed { background: var(--soft-bad); color: var(--bad); }
+  .p-dry_run { background: var(--soft-ok); color: var(--ok); }
+  .p-handoff_muse { background: var(--soft-muse); color: var(--muse); }
+  .steps { display: flex; gap: 4px; margin: 8px 0 4px; flex-wrap: wrap; }
+  .step { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--bg); color: var(--mute); border: 1px solid var(--line); }
+  .step.done { background: var(--soft-ok); color: var(--ok); border-color: transparent; }
+  .step.now { background: var(--soft-run); color: var(--accent); border-color: var(--accent); }
+  .step.now.warn { background: var(--soft-warn); color: var(--warn); border-color: var(--warn); }
+  .step.now.bad { background: var(--soft-bad); color: var(--bad); border-color: var(--bad); }
+  .step.now.muse { background: var(--soft-muse); color: var(--muse); border-color: var(--muse); }
+  .note { font-size: 13px; }
+  .facts { font-size: 12px; color: var(--mute); margin-top: 3px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .confirm { margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--ok); background: var(--soft-ok); border-radius: 4px; font-size: 13px; }
+  .reply { margin-top: 8px; padding: 8px; background: var(--soft-warn); border: 1px solid var(--warn); border-radius: 6px; }
+  .reply textarea { min-height: 44px; font: 13px system-ui, sans-serif; }
+  .actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; max-width: 260px; }
+  details { margin-top: 6px; }
+  summary { cursor: pointer; color: var(--mute); font-size: 12px; }
+  .log { font: 12px/1.5 ui-monospace, Consolas, monospace; background: var(--bg); border: 1px solid var(--line);
+         border-radius: 6px; padding: 8px; margin-top: 6px; max-height: 260px; overflow: auto; white-space: pre-wrap; }
+  .log .tool { color: var(--accent); }
+  .log .result { color: var(--ok); }
+  .empty { color: var(--mute); padding: 18px 0; text-align: center; }
+  .err { color: var(--bad); font-size: 13px; }
+  footer { margin-top: 18px; color: var(--mute); font-size: 11px; }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    .job { grid-template-columns: 24px 1fr; }
+    .actions { grid-column: 2; justify-content: flex-start; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Application queue</h1>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div class="counts top" id="counts"></div>
+
+  <div class="grid top">
+    <section class="card">
+      <h2>Add jobs</h2>
+      <textarea id="paste" placeholder="One link per line. Text before a link becomes its label:&#10;Stripe - PM New Grad https://..."></textarea>
+      <div class="row">
+        <button id="add">Add to queue</button>
+        <button class="primary" id="sendall">Send all pending</button>
+        <button id="syncqueue" title="Re-reads QUEUE.txt and adds links not already here or removed">Sync QUEUE.txt</button>
+      </div>
+      <div class="row"><span id="msg" class="hint"></span></div>
+    </section>
+
+    <section class="card">
+      <h2>Submission agent</h2>
+      <div class="hint">Who fills and submits the form. Screening, writing and review always run on Claude.</div>
+      <label class="f" for="who">Agent</label>
+      <select id="who">
+        <option value="hermes">Hermes (on Parley)</option>
+        <option value="claude">Claude (applier subagent)</option>
+      </select>
+      <label class="f" for="model">Model</label>
+      <select id="model"></select>
+      <div class="row"><span id="subsaved" class="hint">Applies to the next job that reaches the submit step.</span></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="listhead">
+      <h2 style="margin:0">Jobs</h2>
+      <label class="hint">Show
+        <select id="filter">
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="attention">Needs you or failed</option>
+          <option value="submitted">Submitted</option>
+        </select>
+      </label>
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <footer>Runs one job at a time, top of the queue first. Build v2-2026-09-29</footer>
+</main>
+
+<script>
+const STEPS = ["Screen", "Write", "Review", "Submit", "Confirmed"];
+const LABEL = { pending: "Pending", sent: "Waiting to run", running: "Running",
+  submitted: "Submitted", stopped: "Not eligible", needs_you: "Needs you",
+  handoff_muse: "Muse handoff", failed: "Failed", dry_run: "Filled, not submitted" };
+const STAGE_TEXT = { screening: "Screening the posting", files_written: "Files written",
+  in_review: "Reviewer checking", review_failed: "Reviewer sent fixes back",
+  reviewer_approved: "Reviewer approved", submitting: "Submission in process",
+  human_reply: "Your reply received" };
+const FINAL = ["submitted", "stopped", "needs_you", "handoff_muse", "failed", "dry_run"];
+const MODEL_LABEL = { "claude-haiku-4-5": "Claude Haiku 4.5 (cheapest)", "claude-sonnet-5": "Claude Sonnet 5",
+  "claude-opus-5": "Claude Opus 5 (most expensive)", "gpt-5.6-luna": "GPT-5.6 Luna",
+  haiku: "Haiku", sonnet: "Sonnet", opus: "Opus" };
+const openLogs = new Set();
+const drafts = {};          // job id -> reply text, survives the 2 s refresh
+let submitterOptions = {};  // from /api/submitter
+
+// where the stepper stands for a stage: [index of the current step, tone]
+function position(stage, prev) {
+  switch (stage) {
+    case "screening": return [0, ""];
+    case "files_written": case "in_review": return [2, ""];
+    case "review_failed": return [2, "warn"];
+    case "reviewer_approved": case "submitting": return [3, ""];
+    case "submitted": return [5, ""];
+    case "dry_run": return [4, ""];
+    case "stopped": return [0, "bad"];
+    case "handoff_muse": return [3, "muse"];
+    case "needs_you": return [position(prev)[0], "warn"];
+    case "failed": return [position(prev)[0], "bad"];
+    default: return [-1, ""];
+  }
+}
+
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function ago(t) { if (!t) return ""; const s = Math.round(Date.now() / 1000 - t);
+  return s < 60 ? `${s}s ago` : s < 3600 ? `${Math.round(s / 60)} min ago` : `${Math.round(s / 3600)} h ago`; }
+function dur(s) { s = Math.max(0, Math.round(s)); return s < 60 ? `${s}s` : `${Math.floor(s / 60)} min ${s % 60}s`; }
+
+async function api(path, body) {
+  const r = await fetch(path, { method: body === undefined ? "GET" : "POST",
+    headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+function statusOf(j) {
+  const st = (j.stages || []).filter(s => s.stage !== "human_reply");
+  const last = st[st.length - 1];
+  if (j.state === "done") return last ? last.stage : "failed";
+  return j.state;
+}
+
+function render(data) {
+  const waiting = data.jobs.some(j => j.state === "sent");
+  document.getElementById("meta").innerHTML =
+    (data.mock ? '<span class="badge">MOCK MODE, applies nowhere</span> ' : "") +
+    (data.no_submit ? '<span class="badge">TEST MODE, fills forms but never submits</span> ' : "") +
+    `${data.runs} of ${data.max_runs} applications this session` +
+    (data.runs >= data.max_runs && waiting ? ' · <span class="limit">limit reached: restart the dashboard to run waiting jobs</span>' : "");
+
+  const tally = {};
+  data.jobs.forEach(j => { const s = statusOf(j); tally[s] = (tally[s] || 0) + 1; });
+  document.getElementById("counts").innerHTML = ["running", "sent", "pending", "needs_you", "failed", "submitted", "stopped", "handoff_muse"]
+    .filter(k => tally[k]).map(k => `<span class="count"><b>${tally[k]}</b> ${LABEL[k]}</span>`).join("")
+    || '<span class="count">No jobs yet</span>';
+
+  const filter = document.getElementById("filter").value;
+  const keep = j => {
+    const s = statusOf(j);
+    if (filter === "active") return ["pending", "sent", "running"].includes(s);
+    if (filter === "attention") return ["needs_you", "failed", "handoff_muse"].includes(s);
+    if (filter === "submitted") return s === "submitted";
+    return true;
+  };
+
+  const list = document.getElementById("list");
+  if (!data.jobs.length) { list.innerHTML = '<div class="empty">Queue is empty. Paste a link above.</div>'; return; }
+  const rows = data.jobs.map((j, i) => [j, i]).filter(([j]) => keep(j));
+  if (!rows.length) { list.innerHTML = '<div class="empty">No jobs match this filter.</div>'; return; }
+
+  list.innerHTML = rows.map(([j, i]) => {
+    const all = j.stages || [];
+    const st = all.filter(s => s.stage !== "human_reply");
+    const last = st[st.length - 1];
+    const newest = all[all.length - 1];
+    const prev = st.length > 1 ? st[st.length - 2].stage : "screening";
+    const pill = statusOf(j);
+    const [at, tone] = last ? position(last.stage, prev) : [-1, ""];
+    const steps = STEPS.map((s, k) => `<span class="step${k < at ? " done" : k === at ? " now" + (tone ? " " + tone : "") : ""}">${s}</span>`).join("");
+    const now = newest && !FINAL.includes(newest.stage) ? (STAGE_TEXT[newest.stage] || newest.stage) : "";
+    const note = newest && newest.note && newest.stage !== "submitted" ? `${now ? " · " : ""}${esc(newest.note)}` : "";
+    const running = j.state === "running";
+    const took = j.started ? (running ? `running ${dur(Date.now() / 1000 - j.started)}` : j.finished ? `took ${dur(j.finished - j.started)}` : "") : "";
+    const facts = [took, j.submitter ? `submitter: ${esc(j.submitter)}` : ""].filter(Boolean).map(f => `<span>${f}</span>`).join("");
+    const history = all.map(s => `${new Date(s.t * 1000).toLocaleTimeString()}  ${s.stage}${s.note ? "  " + s.note : ""}`).join("\n");
+    const btn = (a, t, cls = "", dis = false) => `<button class="${cls}" data-a="${a}" data-id="${j.id}" ${dis ? "disabled" : ""}>${t}</button>`;
+    let acts = btn("up", "↑", "", i === 0) + btn("down", "↓", "", i === data.jobs.length - 1) + btn("top", "Top", "", i === 0);
+    if (j.state === "pending") acts += btn("send", "Send to main agent", "primary");
+    if (j.state === "sent") acts += btn("unsend", "Hold");
+    if (running) acts += btn("stop", "Stop", "danger");
+    if (j.state === "done") acts += btn("restart", "Run again from top");
+    if (!running) acts += btn("remove", "Remove", "danger");
+    const canReply = j.state === "done" && ["needs_you", "failed", "handoff_muse"].includes(pill);
+    const replyBox = canReply ? `<div class="reply">
+        <textarea data-reply="${j.id}" placeholder="Answer the agent here. It picks up where it stopped, not from the start.">${esc(drafts[j.id] || "")}</textarea>
+        <div class="row"><button class="primary" data-a="resume" data-id="${j.id}">Send reply, resume from here</button></div>
+      </div>` : "";
+    const confirm = pill === "submitted" && last && last.note ? `<div class="confirm">“${esc(last.note)}”</div>` : "";
+    const title = j.label ? esc(j.label) : `<a href="${esc(j.url)}" target="_blank" rel="noopener">${esc(j.url)}</a>`;
+    return `<div class="job">
+      <div class="num">${i + 1}</div>
+      <div>
+        <div class="title">${title}</div>
+        ${j.label ? `<div class="sub"><a href="${esc(j.url)}" target="_blank" rel="noopener">${esc(j.url)}</a></div>` : ""}
+        <div class="steps">${steps}</div>
+        <div class="note"><span class="pill p-${pill}">${LABEL[pill] || pill}</span>${esc(now)}${note}
+          <span class="hint">${newest ? ago(newest.t) : ""}</span></div>
+        ${facts ? `<div class="facts">${facts}</div>` : ""}
+        ${confirm}${replyBox}
+        ${all.length || j.state !== "pending" ? `<details data-log="${j.id}" ${openLogs.has(j.id) ? "open" : ""}>
+          <summary>Stages and agent activity</summary>
+          <div class="log">${esc(history) || "No stages reported yet."}</div>
+          <div class="log" id="act-${j.id}">Loading activity…</div>
+        </details>` : ""}
+      </div>
+      <div class="actions">${acts}</div>
+    </div>`;
+  }).join("");
+  openLogs.forEach(loadActivity);
+}
+
+async function loadActivity(id) {
+  const el = document.getElementById("act-" + id);
+  if (!el) return;
+  try {
+    const { lines } = await api(`/api/jobs/${id}/activity`);
+    el.innerHTML = lines.length ? lines.map(l => `<div class="${l.kind}">${l.kind === "tool" ? "→ " : ""}${esc(l.text)}</div>`).join("")
+                                : "No agent output yet.";
+    el.scrollTop = el.scrollHeight;
+  } catch (e) { el.textContent = "Could not load activity: " + e.message; }
+}
+
+async function refresh() {
+  // Never rebuild the list while a reply is being typed: it would take the cursor and the text.
+  if (document.activeElement && document.activeElement.matches("#list textarea, #list select")) return;
+  try { render(await api("/api/jobs")); }
+  catch (e) { document.getElementById("list").innerHTML = `<div class="err">Dashboard server is not reachable: ${esc(e.message)}</div>`; }
+}
+
+// ---- submission agent switch (native selects, saved on change) ----
+function fillModels(who, current) {
+  const m = document.getElementById("model");
+  m.innerHTML = (submitterOptions[who] || []).map(x =>
+    `<option value="${esc(x)}" ${x === current ? "selected" : ""}>${esc(MODEL_LABEL[x] || x)}</option>`).join("");
+}
+async function loadSubmitter() {
+  try {
+    const s = await api("/api/submitter");
+    submitterOptions = s.options;
+    document.getElementById("who").value = s.submitter;
+    fillModels(s.submitter, s.model);
+  } catch (e) { document.getElementById("subsaved").textContent = "Could not read submitter.json: " + e.message; }
+}
+async function saveSubmitter() {
+  const who = document.getElementById("who").value, model = document.getElementById("model").value;
+  const el = document.getElementById("subsaved");
+  try {
+    const s = await api("/api/submitter", { submitter: who, model });
+    el.className = "saved";
+    el.textContent = `Saved: ${who === "hermes" ? "Hermes" : "Claude"} · ${MODEL_LABEL[s.model] || s.model}. Applies to the next job that reaches the submit step.`;
+  } catch (e) { el.className = "err"; el.textContent = e.message; }
+}
+document.getElementById("who").addEventListener("change", e => {
+  fillModels(e.target.value, (submitterOptions[e.target.value] || [])[0]);
+  saveSubmitter();
+});
+document.getElementById("model").addEventListener("change", saveSubmitter);
+
+// ---- queue actions ----
+document.getElementById("add").addEventListener("click", async () => {
+  const box = document.getElementById("paste");
+  try {
+    const r = await api("/api/jobs", { text: box.value });
+    document.getElementById("msg").textContent = `Added ${r.added}.` + (r.skipped.length ? ` Skipped ${r.skipped.length} already in the queue.` : "");
+    if (r.added) box.value = "";
+    refresh();
+  } catch (e) { document.getElementById("msg").textContent = e.message; }
+});
+document.getElementById("sendall").addEventListener("click", async () => {
+  const r = await api("/api/send_all", {});
+  document.getElementById("msg").textContent = `Sent ${r.sent} to the main agent.`;
+  refresh();
+});
+document.getElementById("syncqueue").addEventListener("click", async () => {
+  const r = await api("/api/sync_queue", {});
+  document.getElementById("msg").textContent = r.added ? `Picked up ${r.added} link(s) from QUEUE.txt.` : "Nothing new in QUEUE.txt.";
+  refresh();
+});
+document.getElementById("filter").addEventListener("change", refresh);
+document.getElementById("list").addEventListener("input", e => {
+  const t = e.target.closest("textarea[data-reply]");
+  if (t) drafts[t.dataset.reply] = t.value;
+});
+document.getElementById("list").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-a]");
+  if (!b) return;
+  if (b.dataset.a === "remove" && !confirm("Remove this job from the queue?")) return;
+  if (b.dataset.a === "stop" && !confirm("Stop the main agent on this job?")) return;
+  let body = {};
+  if (b.dataset.a === "resume") {
+    const box = document.querySelector(`textarea[data-reply="${b.dataset.id}"]`);
+    const text = box ? box.value.trim() : "";
+    if (!text) { document.getElementById("msg").textContent = "Type a reply before sending."; return; }
+    body = { reply: text };
+  }
+  try {
+    await api(`/api/jobs/${b.dataset.id}/${b.dataset.a}`, body);
+    if (b.dataset.a === "resume" || b.dataset.a === "restart") delete drafts[b.dataset.id];
+  } catch (err) { document.getElementById("msg").textContent = err.message; }
+  refresh();
+});
+document.getElementById("list").addEventListener("toggle", e => {
+  const d = e.target.closest("details[data-log]");
+  if (!d) return;
+  d.open ? (openLogs.add(d.dataset.log), loadActivity(d.dataset.log)) : openLogs.delete(d.dataset.log);
+}, true);
+
+loadSubmitter();
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>
