@@ -286,7 +286,7 @@ def cycle(state):
     if state.get("halted"):
         rec["result"] = "halted: stopped after repeated failures, waiting for a human reset"
         return rec
-    if not START_AT <= now() <= END_AT:
+    if not START_AT <= now() <= END_AT and not DRY_RUN:   # a dry run never writes, so it may test early
         rec["result"] = f"outside the run window ({START_AT:%Y-%m-%d %H:%M} to {END_AT:%Y-%m-%d %H:%M} UTC)"
         return rec
 
