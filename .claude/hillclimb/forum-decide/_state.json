@@ -1,0 +1,27 @@
+{
+ "metrics": [
+  {
+   "id": "right_call",
+   "label": "Right call",
+   "kind": "binary"
+  },
+  {
+   "id": "safe",
+   "label": "Safe",
+   "kind": "binary"
+  },
+  {
+   "id": "quality",
+   "label": "Quality",
+   "kind": "float"
+  }
+ ],
+ "perf_fields": [
+  "latency_s"
+ ],
+ "harness_paths": [
+  "forum_agent/evals/run_eval.py",
+  "forum_agent/evals/cases.py"
+ ],
+ "harness_sha": "11868bbfbbec7ea2"
+}

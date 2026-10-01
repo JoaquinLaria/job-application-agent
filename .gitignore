@@ -8,3 +8,10 @@ dashboard/stages/
 dashboard/dismissed.json
 _generated/
 .env
+
+# eval outputs that are bulky or derived
+**/traces/
+.claude/hillclimb/**/report.html
+.claude/hillclimb/**/state.json
+.claude/hillclimb/**/trajectory/
+forum_agent/evals/leak_terms.local.txt
