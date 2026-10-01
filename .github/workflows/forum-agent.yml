@@ -1,0 +1,53 @@
+name: forum-agent
+
+# One autonomous cycle every three hours. The agent itself refuses to act
+# outside its run window (START_AT..END_AT in agent.py), reads the course-team
+# control line before every write, and halts after repeated failures.
+on:
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      fault:
+        description: "Failure to inject (blank for a normal run): http_500, malformed_llm, lost_ack, crash_after_post, duplicate_event"
+        required: false
+        default: ""
+      dry_run:
+        description: "1 = decide but never write to Canvas"
+        required: false
+        default: "0"
+
+concurrency:
+  group: forum-agent          # never two cycles at once
+  cancel-in-progress: false
+
+permissions:
+  contents: write             # only to commit the memory file back
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q requests
+      - name: Run one cycle
+        env:
+          CANVAS_TOKEN: ${{ secrets.CANVAS_TOKEN }}
+          PARLEY_KEY: ${{ secrets.PARLEY_KEY }}
+          FAULT: ${{ github.event.inputs.fault }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: python forum_agent/agent.py
+      - name: Save memory
+        if: always()          # keep the record even when the cycle failed or crashed
+        run: |
+          git config user.name "forum-agent"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add forum_agent/state
+          git diff --cached --quiet && exit 0
+          git commit -m "forum agent: cycle state"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
