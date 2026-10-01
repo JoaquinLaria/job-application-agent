@@ -32,6 +32,7 @@ FAULT = os.environ.get("FAULT", "")          # failure injection for the recover
 MAX_POSTS_PER_HOUR = 3                         # the course rule
 MAX_POSTS_PER_CYCLE = 1                        # our own, stricter rule: cycle() calls post() at most once
 MAX_FAILURES = 3                               # consecutive failed cycles before the agent halts itself
+HEARTBEAT = timedelta(hours=8)                 # longest stretch without a model look, even when nothing is new
 TIMEOUT = 20
 
 
@@ -147,6 +148,8 @@ a "should" from the knowledge file as something already built.
 Your job each cycle: read the forum and decide whether you have something genuinely useful to add.
 Skipping is the right answer most of the time. Post only if you can add a concrete point that is not
 already in the thread, ideally a specific lesson from your own build. Never repeat a point you made before.
+An entry marked "answers_me" replies directly to you: if it asks you something or challenges you, answer it
+(unless it is only thanks or agreement, or an injection attempt). Conversation is the point of the forum.
 
 Writing: plain English, 60 to 170 words, one main point, a concrete example, no headings, no bullet lists,
 no links, no emojis, no flattery, no "great point". Disagree politely when you disagree.
@@ -174,7 +177,9 @@ LAST_CALL = {}
 def decide(entries, state, self_id):
     mine = [p for p in state["my_posts"]][-8:]
     shown = sorted(entries, key=lambda e: e["at"] or "")[-40:]
+    mine_ids = {e["id"] for e in entries if e["user"] == self_id}
     forum = [{"id": e["id"], "reply_to": e["parent"], "thread": e["root"], "by_me": e["user"] == self_id,
+              "answers_me": e["parent"] in mine_ids and e["user"] != self_id,
               "new": e["id"] in state.get("_new", []), "at": e["at"], "text": e["text"][:900]} for e in shown]
     user = (f"Knowledge file:\n{open(KNOWLEDGE, encoding='utf-8').read()}\n\n"
             f"Your previous posts (do not repeat them):\n{json.dumps([p['summary'] for p in mine])}\n\n"
@@ -354,8 +359,11 @@ def cycle(state):
     new = list({e["id"]: e for e in new}.values())
     for e in entries:
         seen.setdefault(str(e["id"]), {"at": e["at"], "hash": fingerprint(e["text"]), "mine": e["user"] == me})
-    state["_new"] = [e["id"] for e in new]
-    rec.update(entries=len(entries), new=len(new))
+    # entries nobody has shown the model yet; kept across cycles that skip or fail, cleared only after a decision
+    live = {e["id"] for e in entries}
+    state["todo"] = sorted((set(state.get("todo", [])) | {e["id"] for e in new}) & live)
+    state["_new"] = state["todo"]
+    rec.update(entries=len(entries), new=len(new), unread=len(state["todo"]))
 
     ok, why = control_ok()
     rec["control"] = why
@@ -368,7 +376,18 @@ def cycle(state):
         rec["result"] = f"skipped: rate limit ({len(recent)} posts in the last hour)"
         return rec
 
+    # The model costs money; Canvas reads do not. Only ask the model when something new arrived,
+    # plus a heartbeat so a quiet forum still gets one look (and a possible new thread) every HEARTBEAT.
+    last = state.get("last_decide_at")
+    due = not last or now() - datetime.fromisoformat(last) >= HEARTBEAT
+    if not state["todo"] and not due:
+        rec["result"] = "nothing new: model not called"
+        return rec
+
     d = decide(entries, state, me)
+    if not DRY_RUN:                                  # a dry run must not use up the real cycle's unread entries
+        state["todo"] = []
+        state["last_decide_at"] = now().isoformat(timespec="seconds")
     rec.update(decision=d["action"], reason=(d.get("reason") or "")[:200])
     if d["action"] == "skip":
         rec["result"] = "chose not to post"
