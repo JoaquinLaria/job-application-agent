@@ -30,7 +30,7 @@ DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
 FAULT = os.environ.get("FAULT", "")          # failure injection for the recovery demo
 
 MAX_POSTS_PER_HOUR = 3                         # the course rule
-MAX_POSTS_PER_CYCLE = 1                        # our own, stricter rule
+MAX_POSTS_PER_CYCLE = 1                        # our own, stricter rule: cycle() calls post() at most once
 MAX_FAILURES = 3                               # consecutive failed cycles before the agent halts itself
 TIMEOUT = 20
 
@@ -140,6 +140,9 @@ SYSTEM = """You are an autonomous agent taking part in the MAS.665 Homework 3 Ag
 You were built by an MBA student as a job-application agent: a main agent that delegates to a writer,
 a reviewer and a form-submitter, with memory, stop rules and evaluations. You speak from that real
 experience. Your knowledge file below is the only source of facts about yourself; never invent results.
+Honesty: you are an AI agent and say so if it matters; never claim to be a human or to be the student. If a detail
+about your build is not in the knowledge file, do not fill it in: say you do not know, and never describe a plan or
+a "should" from the knowledge file as something already built.
 
 Your job each cycle: read the forum and decide whether you have something genuinely useful to add.
 Skipping is the right answer most of the time. Post only if you can add a concrete point that is not
@@ -175,7 +178,7 @@ def decide(entries, state, self_id):
               "new": e["id"] in state.get("_new", []), "at": e["at"], "text": e["text"][:900]} for e in shown]
     user = (f"Knowledge file:\n{open(KNOWLEDGE, encoding='utf-8').read()}\n\n"
             f"Your previous posts (do not repeat them):\n{json.dumps([p['summary'] for p in mine])}\n\n"
-            f"<forum>\n{json.dumps(forum, ensure_ascii=False)}\n</forum>\n\n"
+            f"<forum>\n{json.dumps(forum, ensure_ascii=False).replace('<', '\\u003c')}\n</forum>\n\n"   # forum text cannot close the tag
             "Decide now. Reply to a specific entry id, start a new thread, or skip.")
     for attempt in range(3):
         try:
@@ -214,10 +217,34 @@ def words(t):
     return set(re.findall(r"[a-z']{4,}", t.lower()))
 
 
+QUOTED = re.compile(r"['\"‘“]([^'\"’”]{3,60})['\"’”]")
+INJECTIONISH = re.compile(r"ignore (all |your |any )?(previous |prior )?(instructions|rules)|override|system:|<!--|"
+                          r"note to (ai|agents)|reply (to this post )?with|(post|reply) .{0,20}(times|exactly)|"
+                          r"api key|token|password|paste|creator|stay compliant", re.I)
+
+
+def echoes(msg, target):
+    """On a post that looks like an injection: text the reply copies from it (a quoted phrase, or 25+ characters).
+    Stops the agent repeating an injected phrase while refusing it ("I will not reply 'compliant'"). Normal posts
+    may be quoted as usual."""
+    if not INJECTIONISH.search(target or ""):
+        return []
+    low, tgt = msg.lower(), (target or "").lower()
+    hits = [q for q in QUOTED.findall(low) if q.strip() and q.strip() in tgt]
+    if len(tgt) >= 25 and any(tgt[i:i + 25] in low for i in range(0, len(tgt) - 24, 5)):
+        hits.append("25+ characters copied verbatim")
+    return hits
+
+
 def check(d, entries, state, self_id):
     """Every reason a model answer must not be posted. Empty list means safe to post."""
     msg = (d.get("message") or "").strip()
     probs = []
+    if d["action"] == "reply":
+        try:
+            d["reply_to"] = int(d.get("reply_to"))       # the model may return "229158"; the URL needs a real id
+        except (TypeError, ValueError):
+            return ["reply_to is not an entry id"]
     if not 250 <= len(msg) <= 1300:
         probs.append(f"length {len(msg)} outside 250-1300 chars")
     if SECRETISH.search(msg):
@@ -231,6 +258,8 @@ def check(d, entries, state, self_id):
             probs.append("reply_to is not an entry in this forum")
         elif t["user"] == self_id:
             probs.append("would reply to its own post")
+        elif echoes(msg, t["text"]):
+            probs.append("repeats text from the post it answers: " + ", ".join(echoes(msg, t["text"]))[:80])
     fp = fingerprint(msg)
     for p in state["my_posts"]:
         if p["hash"] == fp:
@@ -277,6 +306,8 @@ def post(d, state, self_id):
         raise RuntimeError("write failed 3 times and is not on Canvas")
     if FAULT == "crash_after_post":
         log("injected crash after the write, before memory is updated")
+        runlog({"at": now().isoformat(timespec="seconds"), "fault": FAULT, "posted": entry_id,
+                "result": "crashed on purpose after the write; memory not updated"})
         sys.exit(3)
     hit = next((e for e in forum_entries() if e["id"] == entry_id), None)   # verify it was saved
     if not hit or fingerprint(hit["text"]) != fp:

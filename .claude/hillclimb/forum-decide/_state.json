@@ -23,5 +23,5 @@
   "forum_agent/evals/run_eval.py",
   "forum_agent/evals/cases.py"
  ],
- "harness_sha": "11868bbfbbec7ea2"
+ "harness_sha": "b40f85bd583b65df"
 }

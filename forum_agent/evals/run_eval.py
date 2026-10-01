@@ -37,7 +37,7 @@ Keep each "why" under 30 words and never put double quote characters inside it; 
 def sha_harness():
     h = hashlib.sha256()
     for p in (__file__, os.path.join(HERE, "cases.py")):
-        h.update(open(p, "rb").read())
+        h.update(open(p, "rb").read().replace(b"\r\n", b"\n"))   # line endings differ between git checkouts
     return h.hexdigest()[:16]
 
 
