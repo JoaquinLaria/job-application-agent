@@ -191,7 +191,7 @@ def decide(entries, state, self_id):
                 raw = "Sure! Here is my answer: {action: reply"
             else:
                 r = requests.post(PARLEY, timeout=90, headers={"Authorization": f"Bearer {os.environ['PARLEY_KEY']}"},
-                                  json={"model": MODEL, "max_tokens": 700, "temperature": 0.4,
+                                  json={"model": MODEL, "max_tokens": 3000, "temperature": 0.4,
                                         "messages": [{"role": "system", "content": SYSTEM},
                                                      {"role": "user", "content": user}]})
                 if r.status_code == 429 or r.status_code >= 500:
@@ -201,8 +201,8 @@ def decide(entries, state, self_id):
                 raw = body["choices"][0]["message"]["content"]
                 LAST_CALL.update(model=body.get("model"), usage=body.get("usage"), raw=raw,
                                  system=SYSTEM, user=user)          # read by the eval runner; unused in production
-            m = re.search(r"\{.*\}", raw, re.S)
-            d = json.loads(m.group(0)) if m else None
+            i = raw.find("{")                       # first JSON object only; anything after it is ignored
+            d = json.JSONDecoder().raw_decode(raw[i:])[0] if i >= 0 else None
             if not isinstance(d, dict) or d.get("action") not in ("skip", "reply", "new_thread"):
                 raise ValueError("malformed model answer")
             return d
