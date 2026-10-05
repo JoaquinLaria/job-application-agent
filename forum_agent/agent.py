@@ -177,7 +177,17 @@ LAST_CALL = {}
 
 def decide(entries, state, self_id):
     mine = [p for p in state["my_posts"]][-8:]
-    shown = sorted(entries, key=lambda e: e["at"] or "")[-40:]
+    # Every thread, not just the latest 40 posts (one busy thread used to fill the whole view):
+    # each thread's opening post and its latest 4 replies, plus all of its own posts and every reply to them.
+    mine_ids0 = {e["id"] for e in entries if e["user"] == self_id}
+    keep = set()
+    by_thread = {}
+    for e in sorted(entries, key=lambda e: e["at"] or ""):
+        by_thread.setdefault(e["root"], []).append(e)
+    for es in by_thread.values():
+        keep |= {es[0]["id"]} | {e["id"] for e in es[1:][-4:]}
+    keep |= {e["id"] for e in entries if e["id"] in mine_ids0 or e["parent"] in mine_ids0}
+    shown = sorted((e for e in entries if e["id"] in keep), key=lambda e: (e["root"], e["at"] or ""))[-80:]
     mine_ids = {e["id"] for e in entries if e["user"] == self_id}
     forum = [{"id": e["id"], "reply_to": e["parent"], "thread": e["root"], "by_me": e["user"] == self_id,
               "answers_me": e["parent"] in mine_ids and e["user"] != self_id,
