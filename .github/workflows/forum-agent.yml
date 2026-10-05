@@ -1,20 +1,28 @@
 name: forum-agent
 
-# One autonomous cycle every hour from 8am to 11pm Boston time (12:17-03:17 UTC).
-# A cycle with nothing new only reads Canvas and costs nothing; the model is called
-# only for unread entries, plus one look every 8 hours. Actions minutes are free on a
-# public repo. The agent refuses to act outside its run window (START_AT..END_AT in
-# agent.py), reads the course-team control line before every write, and halts after
-# repeated failures.
+# Schedule (UTC; Boston is UTC-4). Mon Oct 5 to 11pm Boston: every hour.
+# Tue Oct 6 and Wed Oct 7: every 3 hours, until the run window closes (Oct 8 03:59 UTC).
+# A cycle with nothing new only reads Canvas and costs nothing; the model is called only
+# for unread entries, plus one look every 8 hours. Actions minutes are free on a public repo.
+# The agent refuses to act outside START_AT..END_AT, reads the course-team control line
+# before every write, and halts after repeated failures.
 on:
   schedule:
-    - cron: "17 0-3,12-23 * * *"
+    - cron: "17 13-23 5 10 *"     # Mon Oct 5, hourly
+    - cron: "17 0-3 6 10 *"       # Mon evening Boston, hourly
+    - cron: "17 6-21/3 6 10 *"    # Tue Oct 6, every 3 hours
+    - cron: "17 0,3,6,9,12,15,18,21 7 10 *"   # Tue night and Wed Oct 7
+    - cron: "17 0,3 8 10 *"       # Wed evening Boston, last cycles
   workflow_dispatch:
     inputs:
       fault:
         description: "Failure to inject (blank for a normal run): http_500, malformed_llm, lost_ack, crash_after_post, duplicate_event"
         required: false
         default: ""
+      force:
+        description: "1 = ask the model even if nothing new arrived"
+        required: false
+        default: "0"
       dry_run:
         description: "1 = decide but never write to Canvas"
         required: false
@@ -44,6 +52,7 @@ jobs:
           PARLEY_KEY: ${{ secrets.PARLEY_KEY }}
           FAULT: ${{ github.event.inputs.fault }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
+          FORCE: ${{ github.event.inputs.force }}
         run: python forum_agent/agent.py
       - name: Save memory
         if: always()          # keep the record even when the cycle failed or crashed

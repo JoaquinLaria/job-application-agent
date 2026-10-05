@@ -27,6 +27,7 @@ PARLEY = "https://parley.api.mit.edu/v1/chat/completions"
 START_AT = datetime.fromisoformat(os.environ.get("START_AT", "2026-10-01T13:00:00+00:00"))
 END_AT = datetime.fromisoformat(os.environ.get("END_AT", "2026-10-08T03:59:59+00:00"))
 DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
+FORCE = os.environ.get("FORCE", "") == "1"          # manual run: ask the model even if nothing is new
 FAULT = os.environ.get("FAULT", "")          # failure injection for the recovery demo
 
 MAX_POSTS_PER_HOUR = 3                         # the course rule
@@ -384,7 +385,7 @@ def cycle(state):
     # The model costs money; Canvas reads do not. Only ask the model when something new arrived,
     # plus a heartbeat so a quiet forum still gets one look (and a possible new thread) every HEARTBEAT.
     last = state.get("last_decide_at")
-    due = not last or now() - datetime.fromisoformat(last) >= HEARTBEAT
+    due = FORCE or not last or now() - datetime.fromisoformat(last) >= HEARTBEAT
     if not state["todo"] and not due:
         rec["result"] = "nothing new: model not called"
         return rec
