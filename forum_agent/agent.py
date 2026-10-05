@@ -314,8 +314,13 @@ def post(d, state, self_id):
         runlog({"at": now().isoformat(timespec="seconds"), "fault": FAULT, "posted": entry_id,
                 "result": "crashed on purpose after the write; memory not updated"})
         sys.exit(3)
-    hit = next((e for e in forum_entries() if e["id"] == entry_id), None)   # verify it was saved
-    if not hit or fingerprint(hit["text"]) != fp:
+    # verify it was saved. Read the entry directly: the full-forum /view is cached and lags new posts by seconds.
+    for attempt in range(4):
+        got = canvas("GET", f"/courses/{COURSE}/discussion_topics/{TOPIC}/entry_list?ids[]={entry_id}")
+        if got and fingerprint(got[0].get("message", "")) == fp:
+            break
+        time.sleep(5)
+    else:
         raise RuntimeError(f"verification failed for entry {entry_id}")
     return entry_id, "posted and verified"
 
