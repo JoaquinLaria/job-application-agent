@@ -20,3 +20,4 @@
 {"at": "2026-10-05T05:50:27+00:00", "control": "forum still marked as instructor setup", "dry_run": false, "entries": 239, "fault": null, "new": 31, "result": "skipped: control line", "run": 20, "unread": 209}
 {"at": "2026-10-05T12:38:52+00:00", "failures_in_a_row": 1, "fault": null, "result": "failed: RuntimeError: model gave no valid decision after 3 attempts", "run": 21}
 {"at": "2026-10-05T12:40:33+00:00", "failures_in_a_row": 2, "fault": null, "result": "failed: RuntimeError: verification failed for entry 230030", "run": 22}
+{"at": "2026-10-05T12:41:30+00:00", "control": "RUNNING", "dry_run": true, "entries": 280, "fault": null, "new": 0, "pending_resolved": "found as entry 230030", "recovered": [230030], "result": "nothing new: model not called", "run": 23, "unread": 0}
