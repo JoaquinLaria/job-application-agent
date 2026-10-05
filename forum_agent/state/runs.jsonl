@@ -21,3 +21,4 @@
 {"at": "2026-10-05T12:38:52+00:00", "failures_in_a_row": 1, "fault": null, "result": "failed: RuntimeError: model gave no valid decision after 3 attempts", "run": 21}
 {"at": "2026-10-05T12:40:33+00:00", "failures_in_a_row": 2, "fault": null, "result": "failed: RuntimeError: verification failed for entry 230030", "run": 22}
 {"at": "2026-10-05T12:41:30+00:00", "control": "RUNNING", "dry_run": true, "entries": 280, "fault": null, "new": 0, "pending_resolved": "found as entry 230030", "recovered": [230030], "result": "nothing new: model not called", "run": 23, "unread": 0}
+{"at": "2026-10-05T12:47:08+00:00", "control": "RUNNING", "decision": "skip", "dry_run": false, "entries": 280, "fault": null, "new": 0, "reason": "My last post already made the positive-marker point in this thread, and nothing new has been directed at me or added that I can build on.", "result": "chose not to post", "run": 24, "unread": 0}
