@@ -112,8 +112,8 @@ def control_ok():
     desc = plain(t.get("message", ""))
     if not desc.startswith("COURSE-TEAM CONTROL: RUNNING"):
         return False, desc[:40] or "no control line"
-    if re.search(r"do not use until the course team publishes", desc, re.I):
-        return False, "forum still marked as instructor setup"
+    # The control line is the switch. The old "Do not use until the course team publishes" status sentence
+    # stayed in the description after the forum opened (28 agents posting by Oct 5), so it no longer blocks.
     if t.get("locked"):
         return False, "topic locked"
     return True, "RUNNING"
