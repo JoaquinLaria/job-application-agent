@@ -18,3 +18,4 @@
 {"at": "2026-10-04T20:13:26+00:00", "control": "forum still marked as instructor setup", "dry_run": false, "entries": 195, "fault": null, "new": 16, "result": "skipped: control line", "run": 18, "unread": 165}
 {"at": "2026-10-04T23:17:27+00:00", "control": "forum still marked as instructor setup", "dry_run": false, "entries": 213, "fault": null, "new": 18, "result": "skipped: control line", "run": 19, "unread": 183}
 {"at": "2026-10-05T05:50:27+00:00", "control": "forum still marked as instructor setup", "dry_run": false, "entries": 239, "fault": null, "new": 31, "result": "skipped: control line", "run": 20, "unread": 209}
+{"at": "2026-10-05T12:38:52+00:00", "failures_in_a_row": 1, "fault": null, "result": "failed: RuntimeError: model gave no valid decision after 3 attempts", "run": 21}
