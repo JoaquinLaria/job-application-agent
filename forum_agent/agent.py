@@ -175,6 +175,23 @@ Answer with one JSON object only:
 LAST_CALL = {}
 
 
+def last_decision(raw):
+    """The model's final answer: the LAST JSON object with a valid action. It sometimes writes a
+    placeholder draft first ({"reason": "placeholder", ...}); taking the first object posted nothing
+    and pointed replies at made-up entry ids in three scheduled runs (30, 31, 33)."""
+    found, dec, i = None, json.JSONDecoder(), raw.find("{")
+    while i >= 0:
+        try:
+            obj, end = dec.raw_decode(raw, i)
+            if isinstance(obj, dict) and obj.get("action") in ("skip", "reply", "new_thread") \
+                    and "placeholder" not in str(obj.get("reason", "")).lower():
+                found = obj
+            i = raw.find("{", end)
+        except ValueError:
+            i = raw.find("{", i + 1)
+    return found
+
+
 def decide(entries, state, self_id):
     mine = [p for p in state["my_posts"]][-8:]
     # Every thread, not just the latest 40 posts (one busy thread used to fill the whole view):
@@ -212,8 +229,7 @@ def decide(entries, state, self_id):
                 raw = body["choices"][0]["message"]["content"]
                 LAST_CALL.update(model=body.get("model"), usage=body.get("usage"), raw=raw,
                                  system=SYSTEM, user=user)          # read by the eval runner; unused in production
-            i = raw.find("{")                       # first JSON object only; anything after it is ignored
-            d = json.JSONDecoder().raw_decode(raw[i:])[0] if i >= 0 else None
+            d = last_decision(raw)
             if not isinstance(d, dict) or d.get("action") not in ("skip", "reply", "new_thread"):
                 raise ValueError("malformed model answer")
             return d
@@ -290,7 +306,17 @@ def find_mine(entries, self_id, fp):
     return next((e for e in entries if e["user"] == self_id and fingerprint(e["text"]) == fp), None)
 
 
-def post(d, state, self_id):
+def live_entries(d, entries):
+    """Where a post would have landed, read live. The full-forum /view is cached and can miss a post
+    made seconds ago, which after a lost acknowledgement would look like "not posted" and cause a duplicate."""
+    root = next((e["root"] for e in entries if e["id"] == d.get("reply_to")), d.get("reply_to"))
+    path = (f"/courses/{COURSE}/discussion_topics/{TOPIC}/entries/{root}/replies" if d["action"] == "reply"
+            else f"/courses/{COURSE}/discussion_topics/{TOPIC}/entries")
+    rows = canvas("GET", path + "?per_page=100")
+    return [{"id": r["id"], "user": r.get("user_id"), "text": plain(r.get("message", ""))} for r in rows]
+
+
+def post(d, state, self_id, entries=()):
     msg = d["message"].strip()
     fp = fingerprint(msg)
     ok, why = control_ok()                                  # rule: read the control line before every write
@@ -313,7 +339,7 @@ def post(d, state, self_id):
         except (requests.Timeout, requests.ConnectionError, Fault) as e:
             log(f"write attempt {attempt + 1} unacknowledged ({e}); checking Canvas before any retry")
             time.sleep(2 ** attempt * 3)
-            hit = find_mine(forum_entries(), self_id, fp)   # did it land anyway?
+            hit = find_mine(live_entries(d, entries) + forum_entries(), self_id, fp)   # did it land anyway?
             if hit:
                 log(f"found the post on Canvas (entry {hit['id']}): no retry, no duplicate")
                 entry_id = hit["id"]
@@ -404,7 +430,7 @@ def cycle(state):
     if not DRY_RUN:                                  # a dry run must not use up the real cycle's unread entries
         state["todo"] = []
         state["last_decide_at"] = now().isoformat(timespec="seconds")
-    rec.update(decision=d["action"], reason=(d.get("reason") or "")[:200])
+    rec.update(decision=d["action"], reply_to=d.get("reply_to"), reason=(d.get("reason") or "")[:200])
     if d["action"] == "skip":
         rec["result"] = "chose not to post"
         return rec
@@ -414,7 +440,7 @@ def cycle(state):
     if probs:
         rec["result"] = "blocked by guardrails: " + "; ".join(probs)
         return rec
-    entry_id, why = post(d, state, me)
+    entry_id, why = post(d, state, me, entries)
     rec["result"] = why
     if entry_id:
         state["pending"] = None
