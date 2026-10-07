@@ -23,7 +23,7 @@ BASE = "https://canvas.mit.edu/api/v1"
 COURSE = os.environ.get("COURSE_ID", "40577")
 TOPIC = os.environ.get("TOPIC_ID", "448963")
 MODEL = os.environ.get("MODEL", "claude-sonnet-5-5")
-PARLEY = "https://parley.api.mit.edu/v1/chat/completions"
+PARLEY = os.environ.get("PARLEY_URL", "https://parley.api.mit.edu/v1/chat/completions")   # any OpenAI-compatible endpoint
 START_AT = datetime.fromisoformat(os.environ.get("START_AT", "2026-10-01T13:00:00+00:00"))
 END_AT = datetime.fromisoformat(os.environ.get("END_AT", "2026-10-08T03:59:59+00:00"))
 DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
@@ -120,6 +120,15 @@ def control_ok():
     return True, "RUNNING"
 
 
+NAMES = set()   # forum participants' name parts, read each cycle, never stored
+
+
+def redact(t):
+    """The repo is public: its copies of the agent's own posts must not carry classmates' names.
+    Canvas keeps the original; only the stored and logged copies are redacted."""
+    return re.sub(r"\b[A-Z][A-Za-z]+\b", lambda m: "[name]" if m.group(0).lower() in NAMES else m.group(0), t or "")
+
+
 def forum_entries():
     """Flatten the whole forum into entries with parent ids. Deleted entries are dropped."""
     v = canvas("GET", f"/courses/{COURSE}/discussion_topics/{TOPIC}/view")
@@ -134,6 +143,8 @@ def forum_entries():
                         "at": e.get("created_at"), "text": plain(e.get("message", ""))})
             walk(e.get("replies", []), e["id"], rid)
     walk(v.get("view", []), None, None)
+    for p in v.get("participants", []):
+        NAMES.update(t.lower() for t in re.findall(r"[A-Za-z]{3,}", p.get("display_name") or ""))
     return out
 
 
@@ -331,6 +342,10 @@ def post(d, state, self_id, entries=()):
     save_state(state)                                       # intent is on disk before the write
     for attempt in range(3):
         try:
+            if attempt:                                     # a retry is a new write: read the control line again
+                ok, why = control_ok()
+                if not ok:
+                    raise RuntimeError(f"control line changed before retry: {why}")
             res = canvas("POST", path, data={"message": body})
             if FAULT == "lost_ack":
                 raise requests.Timeout("injected: post sent, acknowledgement lost")
@@ -367,8 +382,8 @@ def remember_post(state, e, summary=None):
     if any(p["id"] == e["id"] for p in state["my_posts"]):
         return
     state["my_posts"].append({"id": e["id"], "reply_to": e["parent"], "at": e["at"] or now().isoformat(),
-                              "hash": fingerprint(e["text"]), "summary": (summary or e["text"])[:220],
-                              "words": sorted(words(e["text"]))})
+                              "hash": fingerprint(e["text"]), "summary": redact(summary or e["text"])[:220],
+                              "words": sorted(words(redact(e["text"])))})
 
 
 def cycle(state):
@@ -397,6 +412,8 @@ def cycle(state):
     seen = state["seen"]
     if FAULT == "duplicate_event" and seen:
         entries.append(dict(next(e for e in entries if str(e["id"]) in seen)))   # replay an old event
+    if FAULT == "duplicate_event" and seen:
+        log(f"injected: replayed already-seen entry {entries[-1]['id']}; it must not count as new")
     new = [e for e in entries if str(e["id"]) not in seen and e["user"] != me]
     new = list({e["id"]: e for e in new}.values())
     for e in entries:
@@ -472,6 +489,9 @@ def main():
     state["runs"] += 1
     state["last_run"] = rec["at"]
     save_state(state)
+    for k in ("message", "draft", "reason"):
+        if rec.get(k):
+            rec[k] = redact(rec[k])
     runlog(rec)
     log(json.dumps({k: v for k, v in rec.items() if k != "message"}))
     if rec.get("message"):
