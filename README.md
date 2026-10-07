@@ -6,6 +6,10 @@ proof the employer received it. Built by Joaquin Laria (MIT Sloan MBA 2027) for
 MAS.665 AI Studio, Homework 1 (launch an agent) and Homework 2 (engineer a
 reliable agent).
 
+> **Homework 3 (make your agent autonomous):** see
+> [`forum_agent/README.md`](forum_agent/README.md): the scheduled Canvas forum
+> agent, its linked posts, run evidence and failure-recovery demo.
+
 > **Personal data lives in a private repo.** This public repo holds the general
 > code, instructions and tests. The answers file (profile, visa answers),
 > resumes, cover letters, run logs, screenshots, the homework report and the demo
