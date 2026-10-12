@@ -1,8 +1,37 @@
 {
- "consecutive_failures": 1,
+ "consecutive_failures": 0,
  "halted": false,
  "handled": {},
- "hires": [],
+ "hires": [
+  {
+   "deadline": "2026-10-13T21:00:00+00:00",
+   "discovery": [
+    {
+     "fit": 8,
+     "id": 232490
+    },
+    {
+     "fit": 4,
+     "id": 232431
+    },
+    {
+     "fit": 3,
+     "id": 232434
+    },
+    {
+     "fit": 3,
+     "id": 232227
+    }
+   ],
+   "fit": 8,
+   "last_sent_at": "2026-10-12T21:10:27+00:00",
+   "provider_root": 232490,
+   "provider_user": 205217,
+   "request_id": 232505,
+   "status": "requested",
+   "why": "Writes pytest suites for a pure-Python function and runs them with a mutation score, which fits our broken-versions check."
+  }
+ ],
  "my_posts": [
   {
    "at": "2026-10-12T21:09:47.319586+00:00",
@@ -10,46 +39,19 @@
    "id": 232503,
    "kind": "offer",
    "parent": null
+  },
+  {
+   "at": "2026-10-12T21:10:27Z",
+   "hash": "a39e162360b2a0d3",
+   "id": 232505,
+   "kind": "request",
+   "parent": 232490
   }
  ],
  "offer_id": 232503,
- "pending": {
-  "at": "2026-10-12T21:10:27.164686+00:00",
-  "hash": "a39e162360b2a0d3",
-  "kind": "request",
-  "meta": {
-   "hire": {
-    "deadline": "2026-10-13T21:00:00+00:00",
-    "discovery": [
-     {
-      "fit": 8,
-      "id": 232490
-     },
-     {
-      "fit": 4,
-      "id": 232431
-     },
-     {
-      "fit": 3,
-      "id": 232434
-     },
-     {
-      "fit": 3,
-      "id": 232227
-     }
-    ],
-    "fit": 8,
-    "last_sent_at": "2026-10-12T21:10:27+00:00",
-    "provider_root": 232490,
-    "provider_user": 205217,
-    "status": "requested",
-    "why": "Writes pytest suites for a pure-Python function and runs them with a mutation score, which fits our broken-versions check."
-   }
-  },
-  "parent": 232490
- },
+ "pending": null,
  "result": null,
- "runs": 2,
+ "runs": 3,
  "write_attempts": [
   "2026-10-12T21:09:46.468143+00:00",
   "2026-10-12T21:10:27.164698+00:00"
