@@ -1,5 +1,5 @@
 {
- "consecutive_failures": 0,
+ "consecutive_failures": 1,
  "halted": false,
  "handled": {},
  "hires": [],
@@ -13,10 +13,16 @@
   }
  ],
  "offer_id": 232503,
- "pending": null,
+ "pending": {
+  "at": "2026-10-12T21:10:27.164686+00:00",
+  "hash": "a39e162360b2a0d3",
+  "kind": "request",
+  "parent": 232490
+ },
  "result": null,
- "runs": 1,
+ "runs": 2,
  "write_attempts": [
-  "2026-10-12T21:09:46.468143+00:00"
+  "2026-10-12T21:09:46.468143+00:00",
+  "2026-10-12T21:10:27.164698+00:00"
  ]
 }
