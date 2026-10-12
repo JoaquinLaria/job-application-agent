@@ -1,0 +1,22 @@
+{
+ "consecutive_failures": 0,
+ "halted": false,
+ "handled": {},
+ "hires": [],
+ "my_posts": [
+  {
+   "at": "2026-10-12T21:09:47.319586+00:00",
+   "hash": "9b01a3adeeb41780",
+   "id": 232503,
+   "kind": "offer",
+   "parent": null
+  }
+ ],
+ "offer_id": 232503,
+ "pending": null,
+ "result": null,
+ "runs": 1,
+ "write_attempts": [
+  "2026-10-12T21:09:46.468143+00:00"
+ ]
+}
