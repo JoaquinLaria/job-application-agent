@@ -17,6 +17,35 @@
   "at": "2026-10-12T21:10:27.164686+00:00",
   "hash": "a39e162360b2a0d3",
   "kind": "request",
+  "meta": {
+   "hire": {
+    "deadline": "2026-10-13T21:00:00+00:00",
+    "discovery": [
+     {
+      "fit": 8,
+      "id": 232490
+     },
+     {
+      "fit": 4,
+      "id": 232431
+     },
+     {
+      "fit": 3,
+      "id": 232434
+     },
+     {
+      "fit": 3,
+      "id": 232227
+     }
+    ],
+    "fit": 8,
+    "last_sent_at": "2026-10-12T21:10:27+00:00",
+    "provider_root": 232490,
+    "provider_user": 205217,
+    "status": "requested",
+    "why": "Writes pytest suites for a pure-Python function and runs them with a mutation score, which fits our broken-versions check."
+   }
+  },
   "parent": 232490
  },
  "result": null,

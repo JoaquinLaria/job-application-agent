@@ -223,7 +223,7 @@ def writes_last_hour(state):
 OUTGOING_BAD = re.compile(r"(bearer\s+\S{8,}|sk-[A-Za-z0-9]{8,}|[\w.+-]+@[\w-]+\.[a-z]{2,}|https?://|www\.)", re.I)
 
 
-def write(state, text, parent_id, me, kind, root_id=None):
+def write(state, text, parent_id, me, kind, root_id=None, meta=None):
     """One Canvas write with every rule: control line, hourly limit, saved intent, no blind retry, read-back."""
     text = text.strip()
     if OUTGOING_BAD.search(text) or "—" in text or not 40 <= len(text) <= 6000:
@@ -235,12 +235,12 @@ def write(state, text, parent_id, me, kind, root_id=None):
         return None, "write limit: 3 attempts in the last hour"
     if DRY_RUN:
         return None, f"dry run: would post {kind}"
-    fp = base.fingerprint(text)
     path = (f"/courses/{COURSE}/discussion_topics/{TOPIC}/entries/{parent_id}/replies" if parent_id
             else f"/courses/{COURSE}/discussion_topics/{TOPIC}/entries")
     body = "".join(f"<p>{html.escape(p)}</p>" for p in text.split("\n\n"))
     body = body.replace("\n", "<br>")
-    state["pending"] = {"hash": fp, "kind": kind, "parent": parent_id, "at": now().isoformat()}
+    fp = base.fingerprint(body)            # of the HTML we send: our text can itself contain HTML examples
+    state["pending"] = {"hash": fp, "kind": kind, "parent": parent_id, "at": now().isoformat(), "meta": meta}
     state.setdefault("write_attempts", []).append(now().isoformat())
     save(state)                                                  # intent and attempt are on disk before the write
     try:
@@ -291,11 +291,21 @@ def runlog(rec):
 
 # ------------------------------------------------------------------------ steps ---
 def reconcile(state, entries, me):
-    """Own posts that memory missed (lost ack, crash) are adopted, never redone."""
+    """Own posts that memory missed (lost ack, crash, failed read-back) are adopted, never redone.
+    A post matching the saved pending write takes over its meaning, so a lost request is not requested twice."""
     known = {p["id"] for p in state["my_posts"]}
-    for e in entries:
+    pend = state.get("pending") or {}
+    for e in sorted(entries, key=lambda e: e["at"]):
         if e["user"] == me and e["id"] not in known:
-            kind = "offer" if e["parent"] is None and e["text"].startswith("SERVICE OFFER: Job-posting") else "recovered"
+            matches = pend and e["parent"] == pend.get("parent") and ts(e["at"]) >= ts(pend["at"]) - timedelta(minutes=2)
+            kind = pend["kind"] if matches else (
+                "offer" if e["parent"] is None and e["text"].startswith("SERVICE OFFER: Job-posting") else "recovered")
+            if matches and (pend.get("meta") or {}).get("hire"):
+                state["hires"].append(dict(pend["meta"]["hire"], request_id=e["id"]))
+            if matches and (pend.get("meta") or {}).get("handled"):
+                state["handled"].update({k: dict(v, reply=e["id"]) for k, v in pend["meta"]["handled"].items()})
+            if matches:
+                pend = {}
             state["my_posts"].append({"id": e["id"], "kind": kind, "parent": e["parent"], "at": e["at"],
                                       "hash": base.fingerprint(e["text"])})
             if kind == "offer" and not state["offer_id"]:
@@ -325,7 +335,8 @@ def serve(state, entries, me, rec):
                                     "posting as plain text, plus the candidate profile, in one reply.")
         else:
             text = (d.get("message") or "").strip() or "My agent can only screen one job posting against a synthetic profile."
-        eid, why = write(state, text, e["id"], me, f"serve:{act}", state["offer_id"])
+        eid, why = write(state, text, e["id"], me, f"serve:{act}", state["offer_id"],
+                         meta={"handled": {str(e["id"]): {"action": act, "user": e["user"], "at": now().isoformat()}}})
         rec.update(step="serve", request=e["id"], action=act, result=why, posted=eid)
         if eid:
             state["handled"][str(e["id"])] = {"action": act, "user": e["user"], "reply": eid, "at": now().isoformat()}
@@ -508,12 +519,13 @@ def hire(state, entries, me, rec):
         return False
     prov = offers[best["id"]]
     deadline = min(now() + timedelta(hours=REQUEST_HOURS), END_AT - timedelta(hours=6)).replace(minute=0, second=0, microsecond=0)
-    eid, why = write(state, request_text(prov["text"], deadline), prov["id"], me, "request", prov["id"])
+    hire_rec = {"provider_root": prov["id"], "provider_user": prov["user"], "fit": best.get("fit"),
+                "why": (best.get("why") or "")[:300], "status": "requested", "last_sent_at": now().isoformat(),
+                "deadline": deadline.isoformat(), "discovery": rec["discovery"]}
+    eid, why = write(state, request_text(prov["text"], deadline), prov["id"], me, "request", prov["id"], meta={"hire": hire_rec})
     rec.update(step="request", provider=prov["id"], fit=best.get("fit"), why=(best.get("why") or "")[:200], result=why, posted=eid)
     if eid:
-        state["hires"].append({"provider_root": prov["id"], "provider_user": prov["user"], "request_id": eid,
-                               "fit": best.get("fit"), "why": (best.get("why") or "")[:300], "status": "requested",
-                               "last_sent_at": now().isoformat(), "deadline": deadline.isoformat(), "discovery": rec["discovery"]})
+        state["hires"].append(dict(hire_rec, request_id=eid))
     return True
 
 
