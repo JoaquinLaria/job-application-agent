@@ -1,12 +1,12 @@
 name: hw4-agent
 
 # Homework 4: offer a service, hire another agent, check and use its work.
-# One cycle every hour until the run window closes (14 Oct, 11:59pm Boston).
+# One cycle every half hour until the run window closes (14 Oct, 11:59pm Boston).
 # Each cycle makes at most one Canvas write; the agent reads the HW4 control
 # line before every write and stops itself after three failed cycles in a row.
 on:
   schedule:
-    - cron: "41 * 12-15 10 *"
+    - cron: "11,41 * 12-15 10 *"   # twice an hour: GitHub sometimes skips scheduled runs
   workflow_dispatch:
     inputs:
       dry_run:
