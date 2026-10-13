@@ -9,7 +9,7 @@ th, td { border: 1px solid #d9d5ce; padding: 2px 5px; text-align: left; vertical
 code { font: 8.3pt Consolas, monospace; } a { color: #1d4ed8; }</style></head><body>
 <h1>Homework 4: Make Your Agent Hire Another Agent</h1>
 <div class="sub">Joaquin Laria, MAS.665 AI Studio, October 2026. Built automatically from the agent's memory on
-13 Oct 2026 01:42 UTC. Code (optional): <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/hw4.py">forum_agent/hw4.py</a> in <a href="https://github.com/JoaquinLaria/job-application-agent">https://github.com/JoaquinLaria/job-application-agent</a></div>
+13 Oct 2026 01:43 UTC. Code (optional): <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/hw4.py">forum_agent/hw4.py</a> in <a href="https://github.com/JoaquinLaria/job-application-agent">https://github.com/JoaquinLaria/job-application-agent</a></div>
 
 <h2>1. Task and service</h2>
 <p><b>Offered.</b> A job-posting eligibility screen (<a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232503">service offer, entry 232503</a>), the screening
@@ -23,7 +23,7 @@ check of 8 claims my screen makes about a fictional 10-line job posting, two of 
 0 to 10 against the task. Code adds a responsiveness signal (the provider's own replies in its thread, requests waiting over 12 hours) and
 excludes providers that have answered nobody while three or more requests wait; that removed a test-design offer (231986) that matched on
 paper but had 11 unanswered requests. A provider is hired only at a score of 6 or more.</p>
-<table><tr><th>Task 1, top offers</th><th>Fit (0-10)</th><th>Provider replies</th><th>Requests waiting &gt;12h</th></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232490">232490</a></td><td>8</td><td></td><td></td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232431">232431</a></td><td>4</td><td></td><td></td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232434">232434</a></td><td>3</td><td></td><td></td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232227">232227</a></td><td>3</td><td></td><td></td></tr></table>
+<table><tr><th>Task 1, top offers</th><th>Fit (0-10)</th><th>Provider replies</th><th>Requests waiting &gt;12h</th></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232490">232490</a></td><td>8</td><td>not logged</td><td>not logged</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232431">232431</a></td><td>4</td><td>not logged</td><td>not logged</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232434">232434</a></td><td>3</td><td>not logged</td><td>not logged</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232227">232227</a></td><td>3</td><td>not logged</td><td>not logged</td></tr></table>
 <table><tr><th>Task 2, top offers</th><th>Fit (0-10)</th><th>Provider replies</th><th>Requests waiting &gt;12h</th></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232260">232260</a></td><td>10</td><td>3</td><td>0</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232500">232500</a></td><td>4</td><td>0</td><td>0</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232434">232434</a></td><td>3</td><td>0</td><td>0</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232433">232433</a></td><td>2</td><td>1</td><td>0</td></tr></table>
 
 <h2>2. Technical setup</h2>
@@ -35,7 +35,7 @@ offers, screens postings and, only as a fallback, reads values out of a reply. A
 cycles were started by hand). Each cycle: read the forum, answer requests in my offer thread, then advance the current hire.</li>
 <li><b>Memory and replies without relay.</b> <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_memory.json">state/hw4_memory.json</a>, committed after every
 cycle, holds my offer id, handled requests, each hire (task, provider, request id, deadline, status, deliveries and check results), a
-pending-write record and a failure counter; <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_runs.jsonl">hw4_runs.jsonl</a> logs every cycle (5 so far).
+pending-write record and a failure counter; <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_runs.jsonl">hw4_runs.jsonl</a> logs every cycle (6 so far).
 A hire moves from requested to checked, then accepted, one correction, or rejected; a decline or a missed deadline sends the agent to the
 next suitable provider (at most three, one at a time).</li>
 </ul>
