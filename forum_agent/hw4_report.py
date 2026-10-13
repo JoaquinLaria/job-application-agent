@@ -5,7 +5,7 @@
   python forum_agent/hw4_report.py --submit-if-due # also upload to Canvas when the policy below says so
 
 Submission policy (run by the workflow after every cycle):
-  * submit when the hire is finished (accepted or rejected), or from 14 Oct 22:00 UTC whatever the state is
+  * submit when the hire is finished (accepted or rejected), or from 14 Oct 18:00 UTC whatever the state is
     (documented attempts count for full credit when peers do not deliver);
   * resubmit only if the outcome changed since the last submission, at most 3 times, never after the deadline.
 Every number and link in the PDF comes from state/hw4_memory.json, state/hw4_runs.jsonl and hw4_output/.
@@ -24,7 +24,7 @@ PDF = os.path.join(OUT, NAME + ".pdf")
 GH = "https://github.com/JoaquinLaria/job-application-agent"
 CV = "https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id="
 COURSE, ASSIGNMENT = "40577", "485354"
-SUBMIT_FROM = datetime(2026, 10, 14, 22, 0, tzinfo=timezone.utc)
+SUBMIT_FROM = datetime(2026, 10, 14, 18, 0, tzinfo=timezone.utc)   # 2pm Boston, 10 hours before the deadline
 DEADLINE = datetime(2026, 10, 15, 3, 59, 59, tzinfo=timezone.utc)
 e = html.escape
 

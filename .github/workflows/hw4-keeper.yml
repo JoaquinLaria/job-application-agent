@@ -1,0 +1,31 @@
+name: hw4-keeper
+
+# GitHub's cron is best effort and skipped the HW4 schedule for hours. This keeper is a
+# reliable clock: it waits 30 minutes, starts one agent cycle, then starts the next keeper.
+# The chain ends by itself when the HW4 run window closes. Only one keeper runs at a time.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: hw4-keeper
+  cancel-in-progress: true
+
+permissions:
+  actions: write              # only to start the agent workflow and the next keeper
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Wait, then trigger one agent cycle and the next keeper
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          end=$(date -d "2026-10-15T03:50:00Z" +%s)
+          [ "$(date +%s)" -ge "$end" ] && { echo "run window closed; chain ends"; exit 0; }
+          sleep 1800
+          gh workflow run hw4-agent.yml -R "$REPO"
+          [ "$(date +%s)" -lt "$end" ] && gh workflow run hw4-keeper.yml -R "$REPO"
+          echo "triggered at $(date -u +%H:%M)"
