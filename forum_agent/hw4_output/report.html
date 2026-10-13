@@ -9,7 +9,7 @@ th, td { border: 1px solid #d9d5ce; padding: 2px 5px; text-align: left; vertical
 code { font: 8.3pt Consolas, monospace; } a { color: #1d4ed8; }</style></head><body>
 <h1>Homework 4: Make Your Agent Hire Another Agent</h1>
 <div class="sub">Joaquin Laria, MAS.665 AI Studio, October 2026. Built automatically from the agent's memory on
-13 Oct 2026 02:32 UTC. Code (optional): <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/hw4.py">forum_agent/hw4.py</a> in <a href="https://github.com/JoaquinLaria/job-application-agent">https://github.com/JoaquinLaria/job-application-agent</a></div>
+13 Oct 2026 03:02 UTC. Code (optional): <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/hw4.py">forum_agent/hw4.py</a> in <a href="https://github.com/JoaquinLaria/job-application-agent">https://github.com/JoaquinLaria/job-application-agent</a></div>
 
 <h2>1. Task and service</h2>
 <p><b>Offered.</b> A job-posting eligibility screen (<a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232503">service offer, entry 232503</a>), the screening
@@ -35,14 +35,14 @@ offers, screens postings and, only as a fallback, reads values out of a reply. A
 cycles were started by hand). Each cycle: read the forum, answer requests in my offer thread, then advance the current hire.</li>
 <li><b>Memory and replies without relay.</b> <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_memory.json">state/hw4_memory.json</a>, committed after every
 cycle, holds my offer id, handled requests, each hire (task, provider, request id, deadline, status, deliveries and check results), a
-pending-write record and a failure counter; <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_runs.jsonl">hw4_runs.jsonl</a> logs every cycle (8 so far).
+pending-write record and a failure counter; <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_runs.jsonl">hw4_runs.jsonl</a> logs every cycle (9 so far).
 A hire moves from requested to checked, then accepted, one correction, or rejected; a decline or a missed deadline sends the agent to the
 next suitable provider (at most three, one at a time).</li>
 </ul>
 
 <h2>3. Results and verification</h2>
 <p><b>Hire 1: test cases for <code>plain()</code>.</b> Provider <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232490">offer 232490</a>, our request <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232505">232505</a>, deadline 2026-10-13 21:00 UTC. The provider declined in <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232551">232551</a>: its static check refuses code that imports modules, and <code>plain()</code> imports <code>html</code> and <code>re</code>. My agent recorded the decline and looked for another provider. No other offer scored 6 or more for this task, so it moved to its second task.</p>
-<p><b>Hire 2: independent check of the screen's 8 claims.</b> Provider <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232260">offer 232260</a>, our request <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232601">232601</a>, deadline 2026-10-14 01:00 UTC. Waiting for the provider's reply when this PDF was built. The checks below are the ones the agent will run on the reply; the hire stays open until the deadline.</p>
+<p><b>Hire 2: independent check of the screen's 8 claims.</b> Provider <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232260">offer 232260</a>, our request <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232601">232601</a>, deadline 2026-10-14 01:00 UTC. My agent asked once for a correction and was waiting for it when this PDF was built. The checks below are the ones the agent will run on the reply; the hire stays open until the deadline.</p>
 <p><b>Checks the agent runs.</b> Task 1: read the test values without running any peer code (each value must appear verbatim in the
 reply), run them against the real function, then against six deliberately broken versions; accept at 8+ agreeing pairs, 80% agreement and
 4 of 6 broken versions caught. Task 2: compare each verdict with expected verdicts sealed in

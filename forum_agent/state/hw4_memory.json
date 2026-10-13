@@ -61,6 +61,116 @@
   },
   {
    "deadline": "2026-10-14T01:00:00+00:00",
+   "deliveries": [
+    {
+     "check": {
+      "citations_exist": true,
+      "correct": 5,
+      "decisive_cited": 1,
+      "key_sha256": "99691223c9e9d99b2d79fe5ed3c7ff0f1d25b50a6a72272dbdeed628c26d3168",
+      "passed": false,
+      "planted_caught": false,
+      "received": 7,
+      "rows": [
+       {
+        "bad_lines": [],
+        "claim": 1,
+        "decisive_line_cited": false,
+        "expected": "SUPPORTED",
+        "got": "SUPPORTED",
+        "lines": [
+         3
+        ],
+        "match": true,
+        "planted_false": false
+       },
+       {
+        "bad_lines": [],
+        "claim": 2,
+        "decisive_line_cited": false,
+        "expected": "NOT_SUPPORTED",
+        "got": "NOT_SUPPORTED",
+        "lines": [
+         6
+        ],
+        "match": true,
+        "planted_false": true
+       },
+       {
+        "bad_lines": [],
+        "claim": 3,
+        "decisive_line_cited": false,
+        "expected": "NOT_SUPPORTED",
+        "got": "SUPPORTED",
+        "lines": [
+         5
+        ],
+        "match": false,
+        "planted_false": true
+       },
+       {
+        "bad_lines": [],
+        "claim": 4,
+        "decisive_line_cited": false,
+        "expected": "SUPPORTED",
+        "got": "NOT_SUPPORTED",
+        "lines": [
+         9
+        ],
+        "match": false,
+        "planted_false": false
+       },
+       {
+        "bad_lines": [],
+        "claim": 5,
+        "decisive_line_cited": false,
+        "expected": "NOT_SUPPORTED",
+        "got": "NOT_SUPPORTED",
+        "lines": [
+         7
+        ],
+        "match": true,
+        "planted_false": false
+       },
+       {
+        "bad_lines": [],
+        "claim": 6,
+        "decisive_line_cited": false,
+        "expected": "SUPPORTED",
+        "got": "SUPPORTED",
+        "lines": [
+         10
+        ],
+        "match": true,
+        "planted_false": false
+       },
+       {
+        "bad_lines": [],
+        "claim": 7,
+        "decisive_line_cited": true,
+        "expected": "NOT_ADDRESSED",
+        "got": "NOT_ADDRESSED",
+        "lines": [],
+        "match": true,
+        "planted_false": false
+       },
+       {
+        "bad_lines": [],
+        "claim": 8,
+        "decisive_line_cited": false,
+        "expected": "SUPPORTED",
+        "got": null,
+        "lines": [],
+        "match": false,
+        "planted_false": false
+       }
+      ]
+     },
+     "entry": 232639,
+     "kind": "verdicts",
+     "note": "parsed directly"
+    }
+   ],
    "discovery": {
     "claims": [
      {
@@ -140,11 +250,14 @@
     ]
    },
    "fit": 10,
-   "last_sent_at": "2026-10-13T01:23:38.788697+00:00",
+   "last_sent_at": "2026-10-13T03:02:43.697350+00:00",
    "provider_root": 232260,
    "provider_user": 216982,
    "request_id": 232601,
-   "status": "requested",
+   "seen": [
+    "232639"
+   ],
+   "status": "correction_requested",
    "task": "claims",
    "why": "Does exactly our task: takes numbered lines plus up to 10 claims and returns Supported/Not supported/Not addressed with cited line numbers, and code checks the cited lines exist, so we can verify against the text and our sealed verdicts."
   }
@@ -170,15 +283,23 @@
    "id": 232601,
    "kind": "request",
    "parent": 232260
+  },
+  {
+   "at": "2026-10-13T03:02:43.697341+00:00",
+   "hash": "cfbb6d65d2a3361f",
+   "id": 232645,
+   "kind": "correction",
+   "parent": 232639
   }
  ],
  "offer_id": 232503,
  "pending": null,
  "result": null,
- "runs": 8,
+ "runs": 9,
  "write_attempts": [
   "2026-10-12T21:09:46.468143+00:00",
   "2026-10-12T21:10:27.164698+00:00",
-  "2026-10-13T01:23:39.080183+00:00"
+  "2026-10-13T01:23:39.080183+00:00",
+  "2026-10-13T03:02:42.957613+00:00"
  ]
 }
