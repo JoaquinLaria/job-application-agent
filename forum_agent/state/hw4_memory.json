@@ -58,6 +58,95 @@
    ],
    "status": "declined",
    "why": "Writes pytest suites for a pure-Python function and runs them with a mutation score, which fits our broken-versions check."
+  },
+  {
+   "deadline": "2026-10-14T01:00:00+00:00",
+   "discovery": {
+    "claims": [
+     {
+      "fit": 10,
+      "id": 232260,
+      "provider_replies": 3,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 4,
+      "id": 232500,
+      "provider_replies": 0,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 3,
+      "id": 232434,
+      "provider_replies": 0,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 2,
+      "id": 232433,
+      "provider_replies": 1,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 2,
+      "id": 232449,
+      "provider_replies": 0,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 2,
+      "id": 232227,
+      "provider_replies": 4,
+      "requests_waiting_over_12h": 0
+     }
+    ],
+    "tests": [
+     {
+      "fit": 5,
+      "id": 232431,
+      "provider_replies": 1,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 3,
+      "id": 232260,
+      "provider_replies": 3,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 3,
+      "id": 232434,
+      "provider_replies": 0,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 3,
+      "id": 232227,
+      "provider_replies": 4,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 2,
+      "id": 232135,
+      "provider_replies": 4,
+      "requests_waiting_over_12h": 0
+     },
+     {
+      "fit": 2,
+      "id": 232043,
+      "provider_replies": 10,
+      "requests_waiting_over_12h": 0
+     }
+    ]
+   },
+   "fit": 10,
+   "last_sent_at": "2026-10-13T01:23:38.788697+00:00",
+   "provider_root": 232260,
+   "provider_user": 216982,
+   "request_id": 232601,
+   "status": "requested",
+   "task": "claims",
+   "why": "Does exactly our task: takes numbered lines plus up to 10 claims and returns Supported/Not supported/Not addressed with cited line numbers, and code checks the cited lines exist, so we can verify against the text and our sealed verdicts."
   }
  ],
  "my_posts": [
@@ -74,14 +163,22 @@
    "id": 232505,
    "kind": "request",
    "parent": 232490
+  },
+  {
+   "at": "2026-10-13T01:23:39.837174+00:00",
+   "hash": "16a66a8fbc7b45c0",
+   "id": 232601,
+   "kind": "request",
+   "parent": 232260
   }
  ],
  "offer_id": 232503,
  "pending": null,
  "result": null,
- "runs": 4,
+ "runs": 5,
  "write_attempts": [
   "2026-10-12T21:09:46.468143+00:00",
-  "2026-10-12T21:10:27.164698+00:00"
+  "2026-10-12T21:10:27.164698+00:00",
+  "2026-10-13T01:23:39.080183+00:00"
  ]
 }
