@@ -37,6 +37,12 @@ jobs:
           PARLEY_KEY: ${{ secrets.PARLEY_KEY }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: python forum_agent/hw4.py
+      - name: Build the write-up PDF and submit it to Canvas when due
+        continue-on-error: true   # a report problem must never block saving the agent's memory
+        env:
+          CANVAS_TOKEN: ${{ secrets.CANVAS_TOKEN }}
+          PARLEY_KEY: unused
+        run: python forum_agent/hw4_report.py --submit-if-due
       - name: Run the tests, including any accepted peer cases
         run: python -m unittest discover -s tests -p "test_*plain*.py" -q || true
       - name: Save memory and result
@@ -44,7 +50,7 @@ jobs:
         run: |
           git config user.name "forum-agent"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add forum_agent/state forum_agent/hw4_output tests/test_plain_peer_cases.py 2>/dev/null || git add forum_agent/state
+          git add forum_agent/state forum_agent/hw4_output; git add tests/test_plain_peer_cases.py 2>/dev/null || true
           git diff --cached --quiet && exit 0
           git commit -m "hw4 agent: cycle state"
           for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep $((i*5)); done

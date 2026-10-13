@@ -1,0 +1,69 @@
+<!doctype html><html><head><meta charset='utf-8'><title>Joaquin Laria - Homework 4 - Make Your Agent Hire Another Agent</title><style>@page { size: Letter; margin: 0.55in 0.65in; }
+body { font: 10pt/1.36 Georgia, serif; color: #15171c; }
+h1 { font: 600 15.5pt Calibri, Arial, sans-serif; margin: 0 0 2px; }
+.sub { font: 9.3pt Calibri, Arial, sans-serif; color: #5b616e; margin-bottom: 6px; }
+h2 { font: 600 11.2pt Calibri, Arial, sans-serif; color: #c4552d; margin: 9px 0 3px; border-bottom: 1px solid #e3e0da; }
+p { margin: 3px 0 5px; } ul { margin: 2px 0 5px 18px; padding: 0; } li { margin: 1px 0; }
+table { border-collapse: collapse; width: 100%; margin: 3px 0 6px; font: 8.8pt Calibri, Arial, sans-serif; }
+th, td { border: 1px solid #d9d5ce; padding: 2px 5px; text-align: left; vertical-align: top; } th { background: #f4f1ec; }
+code { font: 8.3pt Consolas, monospace; } a { color: #1d4ed8; }</style></head><body>
+<h1>Homework 4: Make Your Agent Hire Another Agent</h1>
+<div class="sub">Joaquin Laria, MAS.665 AI Studio, October 2026. Built automatically from the agent's memory on
+13 Oct 2026 01:42 UTC. Code (optional): <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/hw4.py">forum_agent/hw4.py</a> in <a href="https://github.com/JoaquinLaria/job-application-agent">https://github.com/JoaquinLaria/job-application-agent</a></div>
+
+<h2>1. Task and service</h2>
+<p><b>Offered.</b> A job-posting eligibility screen (<a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232503">service offer, entry 232503</a>), the screening
+step of the job-application agent I built in Homeworks 1 and 2. Given a posting and a synthetic profile it returns ELIGIBLE, STOP or UNCLEAR,
+each hard requirement with the exact sentence that states it, and any disqualifier. Before replying, code checks that every quote appears
+word for word in the posting and drops any that do not.</p>
+<p><b>Delegated.</b> The agent has two tasks, in order of preference. (1) Adversarial test cases for <code>plain()</code>, the real function
+my forum agent uses to turn Canvas HTML into text; a bug there breaks fingerprints, duplicate detection and read-back. (2) An independent
+check of 8 claims my screen makes about a fictional 10-line job posting, two of them deliberately false.</p>
+<p><b>How it chose.</b> No partner is hard-coded. On each discovery run the agent reads every service offer, and the model scores each one
+0 to 10 against the task. Code adds a responsiveness signal (the provider's own replies in its thread, requests waiting over 12 hours) and
+excludes providers that have answered nobody while three or more requests wait; that removed a test-design offer (231986) that matched on
+paper but had 11 unanswered requests. A provider is hired only at a score of 6 or more.</p>
+<table><tr><th>Task 1, top offers</th><th>Fit (0-10)</th><th>Provider replies</th><th>Requests waiting &gt;12h</th></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232490">232490</a></td><td>8</td><td></td><td></td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232431">232431</a></td><td>4</td><td></td><td></td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232434">232434</a></td><td>3</td><td></td><td></td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232227">232227</a></td><td>3</td><td></td><td></td></tr></table>
+<table><tr><th>Task 2, top offers</th><th>Fit (0-10)</th><th>Provider replies</th><th>Requests waiting &gt;12h</th></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232260">232260</a></td><td>10</td><td>3</td><td>0</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232500">232500</a></td><td>4</td><td>0</td><td>0</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232434">232434</a></td><td>3</td><td>0</td><td>0</td></tr><tr><td><a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232433">232433</a></td><td>2</td><td>1</td><td>0</td></tr></table>
+
+<h2>2. Technical setup</h2>
+<ul>
+<li><b>Harness and model.</b> A Python agent reusing my HW3 agent's Canvas client. Claude Sonnet through the MIT Parley gateway ranks
+offers, screens postings and, only as a fallback, reads values out of a reply. Acceptance is always decided by code.</li>
+<li><b>Canvas.</b> REST API with my own token from HW3, held in a GitHub Actions secret.</li>
+<li><b>When it runs.</b> GitHub Actions cron, twice an hour from 12 to 14 October (GitHub delays or skips some scheduled runs; a few
+cycles were started by hand). Each cycle: read the forum, answer requests in my offer thread, then advance the current hire.</li>
+<li><b>Memory and replies without relay.</b> <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_memory.json">state/hw4_memory.json</a>, committed after every
+cycle, holds my offer id, handled requests, each hire (task, provider, request id, deadline, status, deliveries and check results), a
+pending-write record and a failure counter; <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_runs.jsonl">hw4_runs.jsonl</a> logs every cycle (5 so far).
+A hire moves from requested to checked, then accepted, one correction, or rejected; a decline or a missed deadline sends the agent to the
+next suitable provider (at most three, one at a time).</li>
+</ul>
+
+<h2>3. Results and verification</h2>
+<p><b>Hire 1: test cases for <code>plain()</code>.</b> Provider <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232490">offer 232490</a>, our request <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232505">232505</a>, deadline 2026-10-13 21:00 UTC. The provider declined in <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232551">232551</a>: its static check refuses code that imports modules, and <code>plain()</code> imports <code>html</code> and <code>re</code>. My agent recorded the decline and looked for another provider. No other offer scored 6 or more for this task, so it moved to its second task.</p>
+<p><b>Hire 2: independent check of the screen's 8 claims.</b> Provider <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232260">offer 232260</a>, our request <a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232601">232601</a>, deadline 2026-10-14 01:00 UTC. Waiting for the provider's reply when this PDF was built. The checks below are the ones the agent will run on the reply; the hire stays open until the deadline.</p>
+<p><b>Checks the agent runs.</b> Task 1: read the test values without running any peer code (each value must appear verbatim in the
+reply), run them against the real function, then against six deliberately broken versions; accept at 8+ agreeing pairs, 80% agreement and
+4 of 6 broken versions caught. Task 2: compare each verdict with expected verdicts sealed in
+<a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/hw4_output/claims_answer_key.json">claims_answer_key.json</a>, committed to the repository before the request and
+quoted by SHA-256 in it; confirm every cited line exists and the deciding line is cited; accept at 7 of 8 including both planted false claims.</p>
+
+<h2>4. Requests to my service</h2>
+<table><tr><th>Request</th><th>Action</th><th>Our reply</th></tr><tr><td colspan="3">No other agent had requested the service when this PDF was built.</td></tr></table>
+
+<h2>5. Safety controls</h2>
+<ul>
+<li><b>Credentials.</b> Two Actions secrets, masked in logs, never written or posted. Outgoing text is blocked if it contains links, email
+addresses or key-shaped strings.</li>
+<li><b>Untrusted peers.</b> Peer text reaches the model only inside a <code>&lt;peer&gt;</code> wrapper with <code>&lt;</code> escaped, as data.
+Peer code is never executed: values are read, not run. The model never decides acceptance.</li>
+<li><b>Control line and write limit.</b> Before every write the agent reads the HW4 description and writes only on
+<code>COURSE-TEAM CONTROL: RUNNING</code>. At most one write per cycle and three attempts per rolling hour, counting my HW3 agent's posts.</li>
+<li><b>Verified, no duplicates.</b> Intent is saved before each write and every post is read back by id. The first request's read-back
+failed because the fingerprint was taken from text that itself contained HTML examples. The post was on Canvas, so the next cycle adopted
+it as the request instead of resending (I added the request's details to memory by hand once, since the first version did not save
+them); the fingerprint now uses the HTML actually sent, and the pending record carries the full request.</li>
+<li><b>Stops.</b> Backoff on reads and model calls, never a blind retry of a write, a halt after three failed cycles in a row, and no
+action outside the run window.</li>
+</ul></body></html>
