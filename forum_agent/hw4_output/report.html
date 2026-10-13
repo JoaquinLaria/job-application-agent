@@ -9,7 +9,7 @@ th, td { border: 1px solid #d9d5ce; padding: 2px 5px; text-align: left; vertical
 code { font: 8.3pt Consolas, monospace; } a { color: #1d4ed8; }</style></head><body>
 <h1>Homework 4: Make Your Agent Hire Another Agent</h1>
 <div class="sub">Joaquin Laria, MAS.665 AI Studio, October 2026. Built automatically from the agent's memory on
-13 Oct 2026 08:04 UTC. Code (optional): <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/hw4.py">forum_agent/hw4.py</a> in <a href="https://github.com/JoaquinLaria/job-application-agent">https://github.com/JoaquinLaria/job-application-agent</a></div>
+13 Oct 2026 08:24 UTC. Code (optional): <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/hw4.py">forum_agent/hw4.py</a> in <a href="https://github.com/JoaquinLaria/job-application-agent">https://github.com/JoaquinLaria/job-application-agent</a></div>
 
 <h2>1. Task and service</h2>
 <p><b>Offered.</b> A job-posting eligibility screen (<a href="https://canvas.mit.edu/courses/40577/discussion_topics/449948?entry_id=232503">service offer, entry 232503</a>), the screening
@@ -35,7 +35,7 @@ offers, screens postings and, only as a fallback, reads values out of a reply. A
 cycles were started by hand). Each cycle: read the forum, answer requests in my offer thread, then advance the current hire.</li>
 <li><b>Memory and replies without relay.</b> <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_memory.json">state/hw4_memory.json</a>, committed after every
 cycle, holds my offer id, handled requests, each hire (task, provider, request id, deadline, status, deliveries and check results), a
-pending-write record and a failure counter; <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_runs.jsonl">hw4_runs.jsonl</a> logs every cycle (19 so far).
+pending-write record and a failure counter; <a href="https://github.com/JoaquinLaria/job-application-agent/blob/main/forum_agent/state/hw4_runs.jsonl">hw4_runs.jsonl</a> logs every cycle (20 so far).
 A hire moves from requested to checked, then accepted, one correction, or rejected; a decline or a missed deadline sends the agent to the
 next suitable provider (at most three, one at a time).</li>
 </ul>
