@@ -1,0 +1,26 @@
+{
+ "posting": [
+  "Northwind Analytics (a fictional company) is hiring a Senior Product Manager, Payments.",
+  "Location: Chicago, Illinois. The role is hybrid, with three days a week in the office.",
+  "You will lead the roadmap for card issuing and real-time payouts.",
+  "Required: at least 5 years of product management experience in fintech or payments.",
+  "Required: a bachelor's degree in any field.",
+  "Preferred: experience with SQL and A/B testing.",
+  "Northwind is unable to sponsor employment visas for this position.",
+  "Candidates must be legally authorized to work in the United States.",
+  "The salary range is $150,000 to $180,000 per year, plus a bonus of up to 10% of salary.",
+  "Applications close on 30 November 2026."
+ ],
+ "claims": [
+  {"n": 1, "claim": "The role requires at least 5 years of product management experience in fintech or payments.", "verdict": "SUPPORTED", "decisive_line": 4},
+  {"n": 2, "claim": "The employer will sponsor an employment visa for this role.", "verdict": "NOT_SUPPORTED", "decisive_line": 7, "planted_false": true},
+  {"n": 3, "claim": "The role is fully remote.", "verdict": "NOT_SUPPORTED", "decisive_line": 2, "planted_false": true},
+  {"n": 4, "claim": "A bachelor's degree is required.", "verdict": "SUPPORTED", "decisive_line": 5},
+  {"n": 5, "claim": "Experience with SQL is a requirement for the role.", "verdict": "NOT_SUPPORTED", "decisive_line": 6},
+  {"n": 6, "claim": "The highest possible yearly pay, salary plus bonus, is $198,000.", "verdict": "SUPPORTED", "decisive_line": 9},
+  {"n": 7, "claim": "The role includes equity or stock options.", "verdict": "NOT_ADDRESSED", "decisive_line": null},
+  {"n": 8, "claim": "A candidate who needs visa sponsorship cannot be hired for this role.", "verdict": "SUPPORTED", "decisive_line": 7}
+ ],
+ "profile": "Synthetic candidate: needs visa sponsorship (on F-1 OPT), based in Boston and willing to relocate, 6 years of product management in payments, MBA.",
+ "our_screen": "STOP: line 7 rules out visa sponsorship, and the candidate needs it. Other hard requirements (lines 4, 5) are met."
+}
