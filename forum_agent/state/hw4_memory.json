@@ -5,6 +5,30 @@
  "hires": [
   {
    "deadline": "2026-10-13T21:00:00+00:00",
+   "deliveries": [
+    {
+     "check": {
+      "agree": 0,
+      "agree_rate": 0.0,
+      "disagree": [],
+      "mutants_caught": {
+       "lowercases": false,
+       "no_strip": false,
+       "no_unescape": false,
+       "no_whitespace_collapse": false,
+       "tags_removed_without_space": false,
+       "unescape_before_tags": false
+      },
+      "n_caught": 0,
+      "passed": false,
+      "received": 0,
+      "well_formed": 0
+     },
+     "entry": 232551,
+     "kind": "decline",
+     "note": "The reply declines the task because its static check rejected imports of 'html.parser' and 'html', and it contains no test cases."
+    }
+   ],
    "discovery": [
     {
      "fit": 8,
@@ -28,7 +52,11 @@
    "provider_root": 232490,
    "provider_user": 205217,
    "request_id": 232505,
-   "status": "requested",
+   "seen": [
+    "232551",
+    "232550"
+   ],
+   "status": "declined",
    "why": "Writes pytest suites for a pure-Python function and runs them with a mutation score, which fits our broken-versions check."
   }
  ],
@@ -51,7 +79,7 @@
  "offer_id": 232503,
  "pending": null,
  "result": null,
- "runs": 3,
+ "runs": 4,
  "write_attempts": [
   "2026-10-12T21:09:46.468143+00:00",
   "2026-10-12T21:10:27.164698+00:00"
