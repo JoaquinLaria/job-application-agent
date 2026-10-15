@@ -435,7 +435,7 @@
  "offer_id": 232503,
  "pending": null,
  "result": null,
- "runs": 53,
+ "runs": 54,
  "submissions": [
   {
    "at": "2026-10-13T06:03:53+00:00",
@@ -445,7 +445,5 @@
    "signature": "[[\"tests\", \"declined\"], [\"claims\", \"accepted\"]]"
   }
  ],
- "write_attempts": [
-  "2026-10-13T21:32:34.351196+00:00"
- ]
+ "write_attempts": []
 }
